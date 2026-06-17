@@ -16,8 +16,8 @@
         .login-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #0f2744; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; color: #1f2937; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-        .form-group input { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
-        .form-group input:focus { outline: none; border-color: #0099ff; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #0099ff; }
         .btn-login { width: 100%; background: linear-gradient(135deg, #0099ff, #00d4ff); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
         .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
         header { background: linear-gradient(135deg, #0f2744 0%, #1a3a52 100%); color: white; padding: 20px 30px; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; }
@@ -58,6 +58,9 @@
         .ranking-table th { padding: 18px; text-align: left; font-weight: 600; font-size: 13px; }
         .ranking-table td { padding: 16px 18px; border-bottom: 1px solid #e5e7eb; }
         .points-badge { background: #00a8e8; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 13px; }
+        .result-details { background: #f0f9ff; padding: 16px; border-radius: 10px; margin-top: 12px; border-left: 4px solid #0099ff; }
+        .result-details p { font-size: 14px; margin: 8px 0; color: #1f2937; }
+        .goal-item { background: white; padding: 8px 12px; border-radius: 6px; margin: 4px 0; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -98,6 +101,7 @@
                 </div>
                 <nav class="nav">
                     <button class="nav-btn active" onclick="showPage('pronostics')">🎯 Pronostics</button>
+                    <button class="nav-btn" onclick="showPage('resultats')">📊 Résultats</button>
                     <button class="nav-btn" onclick="showPage('classement')">🏆 Classement</button>
                     <button class="nav-btn" id="adminBtn" onclick="showPage('admin')" style="display: none;">⚙️ Admin</button>
                 </nav>
@@ -112,6 +116,11 @@
             <div id="pronostics" class="page active">
                 <h2 class="section-title">🎯 Pronostics</h2>
                 <div class="matches-container" id="matchesContainer"></div>
+            </div>
+
+            <div id="resultats" class="page">
+                <h2 class="section-title">📊 Résultats</h2>
+                <div class="matches-container" id="resultatsContainer"></div>
             </div>
 
             <div id="classement" class="page">
@@ -131,7 +140,7 @@
             <div id="admin" class="page">
                 <h2 class="section-title">⚙️ Admin</h2>
                 <div class="admin-section">
-                    <h3>📋 Enregistrer un Résultat</h3>
+                    <h3>📋 Enregistrer un Score</h3>
                     <div class="alert-success" id="successMsg">✓ Enregistré!</div>
                     <div class="form-grid">
                         <div class="form-group">
@@ -141,15 +150,46 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Score 1</label>
+                            <label>Score Équipe 1</label>
                             <input type="number" id="score1" placeholder="0" min="0">
                         </div>
                         <div class="form-group">
-                            <label>Score 2</label>
+                            <label>Score Équipe 2</label>
                             <input type="number" id="score2" placeholder="0" min="0">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="recordResult()">Valider</button>
+                    <button class="btn-primary" onclick="recordResult()">Enregistrer Score</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>⚽ Ajouter Détails du Match</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Sélectionner Match</label>
+                            <select id="detailsMatchSelect">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Équipe</label>
+                            <select id="detailsTeam">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="1">Équipe 1</option>
+                                <option value="2">Équipe 2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nom Scoreur</label>
+                            <input type="text" id="goalScorer" placeholder="Exemple: Ronaldo">
+                        </div>
+                        <div class="form-group">
+                            <label>Temps (minutes)</label>
+                            <input type="number" id="goalTime" placeholder="45" min="0" max="120">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="addGoal()">Ajouter But</button>
                 </div>
             </div>
         </div>
@@ -228,6 +268,7 @@
         let isAdmin = false;
         let myPronostics = {};
         let results = {};
+        let goals = {};
         let serverTime = null;
 
         function handleLogin(e) {
@@ -277,7 +318,13 @@
             db.ref('results').on('value', snapshot => {
                 results = snapshot.val() || {};
                 loadMatches();
+                loadResultats();
                 calculatePoints();
+            });
+
+            db.ref('goals').on('value', snapshot => {
+                goals = snapshot.val() || {};
+                loadResultats();
             });
 
             loadRanking();
@@ -367,6 +414,47 @@
             }).join('');
         }
 
+        function loadResultats() {
+            const container = document.getElementById('resultatsContainer');
+            
+            container.innerHTML = allMatches.filter(m => results[m.id]).map(match => {
+                const goalsForMatch = goals[match.id] || {};
+                const result = results[match.id];
+                const [s1, s2] = result.split('-');
+
+                let goalsHTML = '';
+                
+                if (goalsForMatch['1']) {
+                    goalsHTML += '<p style="color: #0099ff; font-weight: bold; margin-top: 8px;">' + match.team1.split(' ')[1] + ':</p>';
+                    goalsForMatch['1'].forEach(goal => {
+                        goalsHTML += `<div class="goal-item">⚽ ${goal.name} (${goal.time}')</div>`;
+                    });
+                }
+
+                if (goalsForMatch['2']) {
+                    goalsHTML += '<p style="color: #0099ff; font-weight: bold; margin-top: 8px;">' + match.team2.split(' ')[1] + ':</p>';
+                    goalsForMatch['2'].forEach(goal => {
+                        goalsHTML += `<div class="goal-item">⚽ ${goal.name} (${goal.time}')</div>`;
+                    });
+                }
+
+                return `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <div class="team">${match.team1}</div>
+                            <div style="text-align: center; font-size: 24px; font-weight: bold;">${s1} - ${s2}</div>
+                            <div class="team">${match.team2}</div>
+                        </div>
+                        ${goalsHTML ? `<div class="result-details">${goalsHTML}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            if (Object.keys(results).length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Aucun résultat pour le moment</div>';
+            }
+        }
+
         function saveProno(id) {
             const s1 = document.getElementById('p1_' + id).value;
             const s2 = document.getElementById('p2_' + id).value;
@@ -383,8 +471,11 @@
 
         function loadAdminPanel() {
             const select = document.getElementById('matchSelect');
-            select.innerHTML = '<option value="">-- Sélectionner --</option>' +
-                allMatches.map(m => `<option value="${m.id}">${m.team1.substring(2)} vs ${m.team2.substring(2)}</option>`).join('');
+            const detailsSelect = document.getElementById('detailsMatchSelect');
+            const matchOptions = allMatches.map(m => `<option value="${m.id}">${m.team1.substring(2)} vs ${m.team2.substring(2)}</option>`).join('');
+            
+            select.innerHTML = '<option value="">-- Sélectionner --</option>' + matchOptions;
+            detailsSelect.innerHTML = '<option value="">-- Sélectionner --</option>' + matchOptions;
         }
 
         function recordResult() {
@@ -406,6 +497,30 @@
                 document.getElementById('matchSelect').value = '';
                 document.getElementById('score1').value = '';
                 document.getElementById('score2').value = '';
+            });
+        }
+
+        function addGoal() {
+            const matchId = document.getElementById('detailsMatchSelect').value;
+            const team = document.getElementById('detailsTeam').value;
+            const scorer = document.getElementById('goalScorer').value;
+            const time = document.getElementById('goalTime').value;
+
+            if (!matchId || !team || !scorer || !time) {
+                alert('Remplissez tous les champs');
+                return;
+            }
+
+            const goalKey = db.ref('goals/' + matchId + '/' + team).push().key;
+            db.ref('goals/' + matchId + '/' + team + '/' + goalKey).set({
+                name: scorer,
+                time: parseInt(time)
+            }).then(() => {
+                alert('✓ But ajouté!');
+                document.getElementById('goalScorer').value = '';
+                document.getElementById('goalTime').value = '';
+                document.getElementById('detailsMatchSelect').value = '';
+                document.getElementById('detailsTeam').value = '';
             });
         }
 
