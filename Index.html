@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOL - Coupe du Monde 2026</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -141,7 +139,6 @@
         .nav-btn:hover, .nav-btn.active {
             background: #00a8e8;
             border-color: #00a8e8;
-            color: white;
         }
 
         .user-info {
@@ -205,14 +202,6 @@
             margin-bottom: 20px;
         }
 
-        .match-date {
-            color: #6b7280;
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
         .team {
             display: flex;
             align-items: center;
@@ -226,30 +215,14 @@
             font-size: 28px;
         }
 
-        .team-name {
-            font-weight: 600;
-        }
-
-        .match-center {
-            text-align: center;
-        }
-
         .match-status {
             display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-        }
-
-        .status-open {
             background: #dcfce7;
             color: #166534;
-        }
-
-        .status-closed {
-            background: #fee2e2;
-            color: #991b1b;
         }
 
         .score-input {
@@ -283,77 +256,13 @@
             background: #0099ff;
         }
 
-        .time-remaining {
-            font-size: 12px;
-            color: #f59e0b;
-            margin-top: 8px;
-        }
-
         .result-box {
             background: #f9fafb;
             padding: 12px;
             border-radius: 8px;
             text-align: center;
             margin-top: 12px;
-        }
-
-        .result-score {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f2744;
-        }
-
-        .ranking-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            border: 1px solid #e5e7eb;
-        }
-
-        .ranking-table thead {
-            background: linear-gradient(135deg, #0f2744, #1a3a52);
-            color: white;
-        }
-
-        .ranking-table th {
-            padding: 18px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-        }
-
-        .ranking-table td {
-            padding: 16px 18px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .ranking-table tr:hover {
-            background: #f9fafb;
-        }
-
-        .rank-badge {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            background: #00a8e8;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 32px;
-            font-weight: 700;
-        }
-
-        .points-badge {
-            background: #00a8e8;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
+            font-weight: bold;
         }
 
         .admin-section {
@@ -413,16 +322,39 @@
             display: none;
         }
 
-        @media (max-width: 768px) {
-            .match-header {
-                grid-template-columns: 1fr;
-            }
-            .login-box {
-                padding: 40px 25px;
-            }
-            .container {
-                padding: 25px 20px;
-            }
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+
+        .ranking-table thead {
+            background: #0f2744;
+            color: white;
+        }
+
+        .ranking-table th {
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .ranking-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .points-badge {
+            background: #00a8e8;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -476,7 +408,7 @@
 
         <div class="container">
             <div id="pronostics" class="page active">
-                <h2 class="section-title">🎯 Pronostics - Phase de Groupe</h2>
+                <h2 class="section-title">🎯 Pronostics</h2>
                 <div class="matches-container" id="matchesContainer"></div>
             </div>
 
@@ -495,8 +427,7 @@
             </div>
 
             <div id="admin" class="page">
-                <h2 class="section-title">⚙️ Admin - Enregistrer les Résultats</h2>
-                
+                <h2 class="section-title">⚙️ Admin</h2>
                 <div class="admin-section">
                     <h3>📋 Enregistrer un Résultat</h3>
                     <div class="alert-success" id="successMsg">✓ Résultat enregistré!</div>
@@ -517,78 +448,42 @@
                             <input type="number" id="score2" placeholder="0" min="0">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="recordResult()">Valider le Résultat</button>
+                    <button class="btn-primary" onclick="recordResult()">Valider</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkzduPxQ2vtbwDe1Z3HxUC4-aDJuiaNyI",
-            authDomain: "eol-coupe-du-monde.firebaseapp.com",
-            databaseURL: "https://eol-coupe-du-monde-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "eol-coupe-du-monde",
-            storageBucket: "eol-coupe-du-monde.firebasestorage.app",
-            messagingSenderId: "653304813676",
-            appId: "1:653304813676:web:ad64818f50685dbd2b2049"
-        };
+        const allMatches = [
+            { id: 1, team1: '🇵🇹 Portugal', team2: '🇨🇩 RD Congo', date: '17/06', time: '18:00', group: 'K' },
+            { id: 2, team1: '🏴 Angleterre', team2: '🇭🇷 Croatie', date: '17/06', time: '21:00', group: 'L' },
+            { id: 3, team1: '🇬🇭 Ghana', team2: '🇵🇦 Panama', date: '18/06', time: '00:00', group: 'L' },
+            { id: 4, team1: '🇺🇿 Ouzbékistan', team2: '🇨🇴 Colombie', date: '18/06', time: '03:00', group: 'K' },
+            { id: 5, team1: '🇨🇿 Tchéquie', team2: '🇿🇦 Afrique du Sud', date: '18/06', time: '17:00', group: 'A' },
+        ];
 
-        let db = null;
         let currentUser = null;
         let isAdmin = false;
-        let serverTime = null;
-        let matchResults = {};
-
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch (e) {
-            console.log('Firebase init error (expected if already initialized)', e);
-            db = firebase.database();
-        }
-
-        const allMatches = [
-            { id: 1, team1: '🇵🇹 Portugal', team2: '🇨🇩 RD Congo', date: '17/06/2026', time: '18:00', group: 'K' },
-            { id: 2, team1: '🏴 Angleterre', team2: '🇭🇷 Croatie', date: '17/06/2026', time: '21:00', group: 'L' },
-            { id: 3, team1: '🇬🇭 Ghana', team2: '🇵🇦 Panama', date: '18/06/2026', time: '00:00', group: 'L' },
-            { id: 4, team1: '🇺🇿 Ouzbékistan', team2: '🇨🇴 Colombie', date: '18/06/2026', time: '03:00', group: 'K' },
-            { id: 5, team1: '🇨🇿 Tchéquie', team2: '🇿🇦 Afrique du Sud', date: '18/06/2026', time: '17:00', group: 'A' },
-            { id: 6, team1: '🇨🇭 Suisse', team2: '🇧🇦 Bosnie-Herzégovine', date: '18/06/2026', time: '20:00', group: 'B' },
-            { id: 7, team1: '🇨🇦 Canada', team2: '🇶🇦 Qatar', date: '18/06/2026', time: '23:00', group: 'B' },
-            { id: 8, team1: '🇲🇽 Mexique', team2: '🇰🇷 Corée du Sud', date: '19/06/2026', time: '02:00', group: 'A' },
-            { id: 9, team1: '🇺🇸 États-Unis', team2: '🇦🇺 Australie', date: '19/06/2026', time: '20:00', group: 'D' },
-            { id: 10, team1: '🏴 Écosse', team2: '🇲🇦 Maroc', date: '19/06/2026', time: '23:00', group: 'C' },
-        ];
 
         function handleLogin(e) {
             e.preventDefault();
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
             const adminCode = document.getElementById('adminCode').value;
 
             currentUser = {
                 id: firstName.toLowerCase() + '_' + lastName.toLowerCase(),
-                firstName,
-                lastName,
                 fullName: firstName + ' ' + lastName
             };
 
             isAdmin = (adminCode === '199707');
 
-            db.ref('users/' + currentUser.id).once('value').then(snapshot => {
-                if (!snapshot.exists()) {
-                    db.ref('users/' + currentUser.id).set({
-                        firstName,
-                        lastName,
-                        points: 0
-                    });
-                }
-                showMainApp();
-            });
-        }
+            localStorage.setItem('users_' + currentUser.id, JSON.stringify({
+                name: currentUser.fullName,
+                points: 0
+            }));
 
-        function showMainApp() {
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userName').textContent = currentUser.fullName;
@@ -598,88 +493,52 @@
                 loadAdminPanel();
             }
 
-            syncServerTime();
-        }
-
-        function syncServerTime() {
-            db.ref('/.info/serverTimeOffset').once('value', (snapshot) => {
-                const offset = snapshot.val() || 0;
-                serverTime = new Date(Date.now() + offset);
-                loadResults();
-                loadMatches();
-                loadRanking();
-            });
-        }
-
-        function loadResults() {
-            db.ref('results').once('value').then(snapshot => {
-                matchResults = {};
-                snapshot.forEach(child => {
-                    matchResults[child.key] = child.val().score;
-                });
-            });
-        }
-
-        function getMatchStatus(match) {
-            const [day, month, year] = match.date.split('/');
-            const [hours, minutes] = match.time.split(':');
-            const matchTime = new Date(year, month - 1, day, hours, minutes, 0);
-            return serverTime < matchTime ? 'OUVERT' : 'FERMÉ';
+            loadMatches();
+            loadRanking();
         }
 
         function loadMatches() {
             const container = document.getElementById('matchesContainer');
             
             container.innerHTML = allMatches.map(match => {
-                const status = getMatchStatus(match);
-                const isOpen = status === 'OUVERT';
-                const result = matchResults[match.id];
+                const result = localStorage.getItem('result_' + match.id);
 
                 return `
                     <div class="match-card">
                         <div class="match-header">
                             <div>
-                                <div class="match-date">Groupe ${match.group}</div>
+                                <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">Groupe ${match.group}</div>
                                 <div class="team">
                                     <span class="team-flag">${match.team1.split(' ')[0]}</span>
-                                    <span class="team-name">${match.team1.substring(2)}</span>
+                                    <span>${match.team1.substring(2)}</span>
                                 </div>
                             </div>
-                            <div class="match-center">
+                            <div style="text-align: center;">
                                 <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">
                                     📅 ${match.date} ⏰ ${match.time}
                                 </div>
-                                <span class="match-status ${isOpen ? 'status-open' : 'status-closed'}">
-                                    ${isOpen ? '✓ OUVERT' : '❌ FERMÉ'}
-                                </span>
+                                <span class="match-status">✓ OUVERT</span>
                             </div>
                             <div>
-                                <div class="match-date" style="visibility: hidden;">-</div>
+                                <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">-</div>
                                 <div class="team">
                                     <span class="team-flag">${match.team2.split(' ')[0]}</span>
-                                    <span class="team-name">${match.team2.substring(2)}</span>
+                                    <span>${match.team2.substring(2)}</span>
                                 </div>
                             </div>
                         </div>
 
-                        ${result ? `
-                            <div class="result-box">
-                                <div class="result-score">${result}</div>
-                                <div style="font-size: 12px; color: #6b7280;">Résultat Final</div>
-                            </div>
-                        ` : ''}
+                        ${result ? `<div class="result-box">Résultat: ${result}</div>` : ''}
 
-                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 12px;">
                             <div></div>
                             <div>
                                 <div style="display: flex; gap: 6px; align-items: center; justify-content: center;">
-                                    <input type="number" class="score-input" id="s1_${match.id}" 
-                                           placeholder="0" min="0" max="20" ${!isOpen ? 'disabled' : ''}>
-                                    <span style="color: #6b7280; font-weight: 500;">-</span>
-                                    <input type="number" class="score-input" id="s2_${match.id}" 
-                                           placeholder="0" min="0" max="20" ${!isOpen ? 'disabled' : ''}>
+                                    <input type="number" class="score-input" id="p1_${match.id}" placeholder="0" min="0">
+                                    <span>-</span>
+                                    <input type="number" class="score-input" id="p2_${match.id}" placeholder="0" min="0">
                                 </div>
-                                ${isOpen ? `<button class="btn-small" onclick="savePronostic(${match.id})">Pronostiquer</button>` : `<button class="btn-small" disabled>Fermé</button>`}
+                                <button class="btn-small" onclick="saveProno(${match.id})">Pronostiquer</button>
                             </div>
                             <div></div>
                         </div>
@@ -688,18 +547,17 @@
             }).join('');
         }
 
-        function savePronostic(matchId) {
-            const s1 = document.getElementById('s1_' + matchId).value;
-            const s2 = document.getElementById('s2_' + matchId).value;
+        function saveProno(id) {
+            const s1 = document.getElementById('p1_' + id).value;
+            const s2 = document.getElementById('p2_' + id).value;
 
             if (!s1 || !s2) {
-                alert('Veuillez remplir les deux scores');
+                alert('Remplissez les deux scores');
                 return;
             }
 
-            db.ref('pronostics/' + currentUser.id + '/' + matchId).set(s1 + '-' + s2).then(() => {
-                alert('✓ Pronostic sauvegardé!');
-            });
+            localStorage.setItem('prono_' + currentUser.id + '_' + id, s1 + '-' + s2);
+            alert('✓ Pronostic sauvegardé!');
         }
 
         function loadAdminPanel() {
@@ -709,47 +567,49 @@
         }
 
         function recordResult() {
-            const matchId = document.getElementById('matchSelect').value;
-            const score1 = document.getElementById('score1').value;
-            const score2 = document.getElementById('score2').value;
+            const id = document.getElementById('matchSelect').value;
+            const s1 = document.getElementById('score1').value;
+            const s2 = document.getElementById('score2').value;
 
-            if (!matchId || score1 === '' || score2 === '') {
-                alert('Veuillez remplir tous les champs');
+            if (!id || !s1 || !s2) {
+                alert('Remplissez tous les champs');
                 return;
             }
 
-            db.ref('results/' + matchId).set({ score: score1 + '-' + score2 }).then(() => {
-                document.getElementById('successMsg').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('successMsg').style.display = 'none';
-                }, 3000);
-                
-                document.getElementById('matchSelect').value = '';
-                document.getElementById('score1').value = '';
-                document.getElementById('score2').value = '';
-                
-                loadResults();
-                loadMatches();
-            });
+            localStorage.setItem('result_' + id, s1 + '-' + s2);
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMsg').style.display = 'none';
+            }, 3000);
+
+            document.getElementById('matchSelect').value = '';
+            document.getElementById('score1').value = '';
+            document.getElementById('score2').value = '';
+
+            loadMatches();
         }
 
         function loadRanking() {
-            db.ref('users').orderByChild('points').limitToLast(50).once('value').then(snapshot => {
-                const users = [];
-                snapshot.forEach(child => {
-                    users.push({ id: child.key, ...child.val() });
-                });
-                users.reverse();
+            const tbody = document.getElementById('rankingBody');
+            const users = [];
 
-                const tbody = document.getElementById('rankingBody');
-                tbody.innerHTML = users.map((user, index) => `
-                    <tr>
-                        <td><span class="rank-badge">${index + 1}</span></td>
-                        <td>${user.firstName} ${user.lastName}</td>
-                        <td><span class="points-badge">${user.points || 0} pts</span></td>
-                    </tr>
-                `).join('');
-            });
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('users_')) {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    users.push({ name: data.name, points: data.points || 0 });
+                }
+            }
+
+            users.sort((a, b) => b.points - a.points);
+
+            tbody.innerHTML = users.map((user, index) => `
+                <tr>
+                    <td style="font-weight: bold; color: #0099ff;">${index + 1}</td>
+                    <td>${user.name}</td>
+                    <td><span class="points-badge">${user.points} pts</span></td>
+                </tr>
+            `).join('');
         }
 
         function showPage(pageId) {
