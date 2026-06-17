@@ -805,7 +805,7 @@
         }
 
         function loadRanking() {
-            db.ref('users').orderByChild('points').limitToLast(50).once('value').then(snapshot => {
+            db.ref('users').orderByChild('points').limitToLast(50).on('value', snapshot => {
                 const users = [];
                 snapshot.forEach(child => {
                     users.push({ name: child.val().name, points: child.val().points || 0 });
