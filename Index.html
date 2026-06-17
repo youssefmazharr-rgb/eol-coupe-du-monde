@@ -52,8 +52,6 @@
         .form-group select { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
         .btn-primary { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
-        .btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
-        .btn-danger:hover { background: #dc2626; }
         .alert-success { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; padding: 16px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; display: none; }
         .ranking-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); }
         .ranking-table thead { background: #0f2744; color: white; }
@@ -67,13 +65,16 @@
         .goal-item { background: white; padding: 8px 12px; border-radius: 6px; margin: 6px 0; font-size: 13px; font-weight: 500; }
         .team-goals-section { margin: 12px 0; }
         .team-goals-title { color: #0099ff; font-weight: 700; margin-bottom: 6px; font-size: 13px; }
-        .pronostics-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); margin-top: 20px; }
-        .pronostics-table thead { background: #0f2744; color: white; }
-        .pronostics-table th { padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e5e7eb; }
-        .pronostics-table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
+        .pronostics-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; margin-top: 16px; }
+        .pronostics-table thead { background: #e0f2fe; }
+        .pronostics-table th { padding: 10px; text-align: left; font-weight: 600; font-size: 12px; color: #0099ff; }
+        .pronostics-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
         .pronostics-table tr:hover { background: #f9fafb; }
-        .correct { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
-        .wrong { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+        .prono-exact { background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .prono-tendance { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .prono-faux { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .prono-pending { background: #f0f9ff; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .pronostics-table tbody tr:nth-child(odd) { background: #fafafa; }
         .players-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); margin-top: 20px; }
         .players-table thead { background: #0f2744; color: white; }
         .players-table th { padding: 12px; text-align: left; font-weight: 600; font-size: 12px; }
@@ -535,6 +536,49 @@
                 const [s1, s2] = result.split('-');
                 const goalsHTML = getGoalsHTML(match.id);
 
+                // Récupérer tous les pronostics pour ce match
+                let pronosticsHTML = '';
+                const matchPronostics = [];
+
+                for (let userId in allPronostics) {
+                    if (allPronostics[userId][match.id]) {
+                        const userProno = allPronostics[userId][match.id];
+                        const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
+                        const userName = allUsers[userId] ? allUsers[userId].name : 'Inconnu';
+                        
+                        let statusClass = '';
+                        let statusText = 'En attente';
+
+                        if (pronoTeam1 === parseInt(s1) && pronoTeam2 === parseInt(s2)) {
+                            statusClass = 'prono-exact';
+                            statusText = '✓ Exact (20)';
+                        } else if ((pronoTeam1 > pronoTeam2 && parseInt(s1) > parseInt(s2)) || 
+                                   (pronoTeam1 < pronoTeam2 && parseInt(s1) < parseInt(s2)) ||
+                                   (pronoTeam1 === pronoTeam2 && parseInt(s1) === parseInt(s2))) {
+                            statusClass = 'prono-tendance';
+                            statusText = '✓ Tendance (10)';
+                        } else {
+                            statusClass = 'prono-faux';
+                            statusText = '✗ Faux (0)';
+                        }
+
+                        matchPronostics.push({
+                            name: userName,
+                            prono: userProno,
+                            statusClass: statusClass,
+                            statusText: statusText
+                        });
+                    }
+                }
+
+                if (matchPronostics.length > 0) {
+                    pronosticsHTML = '<table class="pronostics-table"><thead><tr><th>Joueur</th><th>Pronostic</th><th>Statut</th></tr></thead><tbody>';
+                    matchPronostics.forEach(p => {
+                        pronosticsHTML += `<tr><td>${p.name}</td><td><strong>${p.prono}</strong></td><td><span class="${p.statusClass}">${p.statusText}</span></td></tr>`;
+                    });
+                    pronosticsHTML += '</tbody></table>';
+                }
+
                 return `
                     <div class="result-card">
                         <div class="result-score">
@@ -543,6 +587,7 @@
                             <div class="result-teams">${match.team2}</div>
                         </div>
                         ${goalsHTML ? `<div class="result-goals">${goalsHTML}</div>` : ''}
+                        ${pronosticsHTML ? `<div style="margin-top: 16px;"><strong style="color: #0f2744;">📊 Tous les Pronostics:</strong>${pronosticsHTML}</div>` : ''}
                     </div>
                 `;
             }).join('');
@@ -581,7 +626,6 @@
             
             select.innerHTML = '<option value="">-- Sélectionner --</option>' + options;
             
-            // Afficher le tableau des joueurs
             const container = document.getElementById('playersContainer');
             let tableHTML = '<table class="players-table"><thead><tr><th>Joueur</th><th>Points Actuels</th><th>Actions</th></tr></thead><tbody>';
             
@@ -690,7 +734,6 @@
                 return;
             }
 
-            const match = allMatches.find(m => m.id == matchId);
             const result = results[matchId];
             const [resultTeam1, resultTeam2] = result ? result.split('-').map(Number) : [null, null];
 
@@ -708,22 +751,22 @@
 
                     if (result) {
                         if (pronoTeam1 === resultTeam1 && pronoTeam2 === resultTeam2) {
-                            statusClass = 'correct';
+                            statusClass = 'prono-exact';
                             statusText = '✓ Exact';
                         } else if ((pronoTeam1 > pronoTeam2 && resultTeam1 > resultTeam2) || 
                                    (pronoTeam1 < pronoTeam2 && resultTeam1 < resultTeam2) ||
                                    (pronoTeam1 === pronoTeam2 && resultTeam1 === resultTeam2)) {
-                            statusClass = 'correct';
+                            statusClass = 'prono-tendance';
                             statusText = '✓ Tendance';
                         } else {
-                            statusClass = 'wrong';
+                            statusClass = 'prono-faux';
                             statusText = '✗ Faux';
                         }
                     }
 
                     tableHTML += `<tr>
                         <td>${userName}</td>
-                        <td>${userProno}</td>
+                        <td><strong>${userProno}</strong></td>
                         <td>${result || '-'}</td>
                         <td><span class="${statusClass}">${statusText}</span></td>
                     </tr>`;
