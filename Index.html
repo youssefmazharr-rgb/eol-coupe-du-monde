@@ -161,7 +161,7 @@
                 
                 <div class="admin-section">
                     <h3>📋 Enregistrer un Score</h3>
-                    <div class="alert-success" id="successMsg">✓ Enregistré!</div>
+                    <div class="alert-success" id="successMsg">✓ Enregistré et points recalculés!</div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Match</label>
@@ -378,7 +378,7 @@
                 results = snapshot.val() || {};
                 loadMatches();
                 loadResultats();
-                calculatePoints();
+                calculatePointsForCurrentUser();
             });
 
             db.ref('goals').on('value', snapshot => {
@@ -407,7 +407,7 @@
             return serverTime >= matchTime;
         }
 
-        function calculatePoints() {
+        function calculatePointsForCurrentUser() {
             let totalPoints = 0;
 
             for (let matchId in myPronostics) {
@@ -424,6 +424,33 @@
             }
 
             db.ref('users/' + currentUser.id + '/points').set(totalPoints);
+        }
+
+        function recalculateAllPoints() {
+            db.ref('pronostics').once('value', (pronosticsSnapshot) => {
+                const allPronostics = pronosticsSnapshot.val() || {};
+                const results_val = results;
+
+                for (let userId in allPronostics) {
+                    let totalPoints = 0;
+                    const userPronostics = allPronostics[userId];
+
+                    for (let matchId in userPronostics) {
+                        if (results_val[matchId]) {
+                            const [u1, u2] = userPronostics[matchId].split('-').map(Number);
+                            const [r1, r2] = results_val[matchId].split('-').map(Number);
+
+                            if (u1 === r1 && u2 === r2) {
+                                totalPoints += 20;
+                            } else if ((u1 > u2 && r1 > r2) || (u1 < u2 && r1 < r2) || (u1 === u2 && r1 === r2)) {
+                                totalPoints += 10;
+                            }
+                        }
+                    }
+
+                    db.ref('users/' + userId + '/points').set(totalPoints);
+                }
+            });
         }
 
         function getGoalsHTML(matchId) {
@@ -536,7 +563,6 @@
                 const [s1, s2] = result.split('-');
                 const goalsHTML = getGoalsHTML(match.id);
 
-                // Récupérer tous les pronostics pour ce match
                 let pronosticsHTML = '';
                 const matchPronostics = [];
 
@@ -659,7 +685,6 @@
         function adjustPoints() {
             const userId = document.getElementById('playerSelect').value;
             const adjust = document.getElementById('pointsAdjust').value;
-            const reason = document.getElementById('pointsReason').value;
 
             if (!userId || !adjust) {
                 alert('Sélectionnez un joueur et entrez un ajustement');
@@ -690,6 +715,8 @@
             }
 
             db.ref('results/' + id).set(s1 + '-' + s2).then(() => {
+                recalculateAllPoints();
+                
                 document.getElementById('successMsg').style.display = 'block';
                 setTimeout(() => {
                     document.getElementById('successMsg').style.display = 'none';
