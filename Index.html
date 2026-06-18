@@ -440,6 +440,7 @@
 
             db.ref('users').on('value', snapshot => {
                 allUsers = snapshot.val() || {};
+                loadResultats();
                 if (isAdmin) {
                     loadPlayersSelect();
                 }
