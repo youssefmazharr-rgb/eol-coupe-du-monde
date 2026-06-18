@@ -432,15 +432,18 @@
                 loadResultats();
             });
 
-            if (isAdmin) {
-                db.ref('pronostics').on('value', snapshot => {
-                    allPronostics = snapshot.val() || {};
-                });
-                db.ref('users').on('value', snapshot => {
-                    allUsers = snapshot.val() || {};
+            // Charger les pronostics et utilisateurs pour TOUS (pas juste admin)
+            db.ref('pronostics').on('value', snapshot => {
+                allPronostics = snapshot.val() || {};
+                loadResultats();
+            });
+
+            db.ref('users').on('value', snapshot => {
+                allUsers = snapshot.val() || {};
+                if (isAdmin) {
                     loadPlayersSelect();
-                });
-            }
+                }
+            });
 
             loadRanking();
         }
