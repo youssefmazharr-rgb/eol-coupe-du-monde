@@ -90,6 +90,11 @@
         .podium-points { font-size: 24px; font-weight: 700; color: #0099ff; margin-bottom: 16px; }
         .podium-prize { font-size: 14px; color: #6b7280; margin-bottom: 8px; }
         .podium-prize-emoji { font-size: 32px; margin: 12px 0; }
+        .sub-tabs { display: flex; gap: 10px; margin-bottom: 24px; }
+        .sub-tab-btn { background: white; color: #6b7280; border: 2px solid #e5e7eb; padding: 12px 28px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .sub-tab-btn:hover { border-color: #00a8e8; color: #0099ff; }
+        .sub-tab-btn.active { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border-color: #00a8e8; }
+        .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -149,6 +154,10 @@
         <div class="container">
             <div id="pronostics" class="page active">
                 <h2 class="section-title">🎯 Pronostics</h2>
+                <div class="sub-tabs">
+                    <button class="sub-tab-btn active" id="subTabActuels" onclick="showSubTab('actuels')">⏳ Actuels</button>
+                    <button class="sub-tab-btn" id="subTabPasses" onclick="showSubTab('passes')">✅ Passés</button>
+                </div>
                 <div class="matches-container" id="matchesContainer"></div>
             </div>
 
@@ -533,10 +542,30 @@
             return goalsHTML;
         }
 
+        let currentSubTab = 'actuels';
+
+        function showSubTab(tab) {
+            currentSubTab = tab;
+            document.getElementById('subTabActuels').classList.toggle('active', tab === 'actuels');
+            document.getElementById('subTabPasses').classList.toggle('active', tab === 'passes');
+            loadMatches();
+        }
+
         function loadMatches() {
             const container = document.getElementById('matchesContainer');
-            
-            container.innerHTML = allMatches.map(match => {
+
+            // Filtrer : "passés" = matchs avec résultat | "actuels" = matchs sans résultat
+            const filteredMatches = allMatches.filter(match => {
+                const hasResult = !!results[match.id];
+                return currentSubTab === 'passes' ? hasResult : !hasResult;
+            });
+
+            if (filteredMatches.length === 0) {
+                container.innerHTML = `<div class="empty-state">${currentSubTab === 'passes' ? 'Aucun match terminé pour le moment' : 'Aucun match à venir'}</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredMatches.map(match => {
                 const result = results[match.id];
                 const myProno = myPronostics[match.id];
                 const hasProno = !!myProno;
@@ -575,11 +604,12 @@
                                 ${result}
                             </div>
                             ${goalsHTML ? `<div class="result-goals">${goalsHTML}</div>` : ''}
-                            <div style="margin-top: 8px; padding: 8px; background: #dbeafe; border-radius: 6px; font-size: 13px; color: #1e40af;">Votre pronostic: ${myProno}</div>
+                            <div style="margin-top: 8px; padding: 8px; background: #dbeafe; border-radius: 6px; font-size: 13px; color: #1e40af;">Votre pronostic: ${myProno || 'Aucun'}</div>
                         ` : `
                             ${myProno ? `<div style="margin-top: 8px; padding: 8px; background: #dbeafe; border-radius: 6px; font-size: 13px; color: #1e40af;">Votre pronostic: ${myProno}</div>` : ''}
                         `}
 
+                        ${result ? '' : `
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 12px;">
                             <div></div>
                             <div>
@@ -594,6 +624,7 @@
                             </div>
                             <div></div>
                         </div>
+                        `}
                     </div>
                 `;
             }).join('');
