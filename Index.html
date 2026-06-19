@@ -72,6 +72,7 @@
         .pronostics-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
         .pronostics-table tr:hover { background: #f9fafb; }
         .prono-exact { background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .prono-ecart { background: #cffafe; color: #155e75; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .prono-tendance { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .prono-faux { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .pronostics-table tbody tr:nth-child(odd) { background: #fafafa; }
@@ -95,6 +96,17 @@
         .sub-tab-btn:hover { border-color: #00a8e8; color: #0099ff; }
         .sub-tab-btn.active { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border-color: #00a8e8; }
         .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; font-size: 15px; }
+        .bareme-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); border: 1px solid #e5e7eb; margin-bottom: 24px; }
+        .bareme-title { font-size: 16px; font-weight: 700; color: #0f2744; margin-bottom: 16px; }
+        .bareme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .bareme-item { padding: 14px; border-radius: 10px; border-left: 4px solid; }
+        .bareme-item.exact { background: #f0fdf4; border-color: #22c55e; }
+        .bareme-item.ecart { background: #ecfeff; border-color: #06b6d4; }
+        .bareme-item.vainqueur { background: #fffbeb; border-color: #f59e0b; }
+        .bareme-item.faux { background: #fef2f2; border-color: #ef4444; }
+        .bareme-head { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; color: #0f2744; margin-bottom: 4px; }
+        .bareme-pts { background: #0f2744; color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
+        .bareme-ex { font-size: 12px; color: #6b7280; font-style: italic; }
     </style>
 </head>
 <body>
@@ -154,6 +166,27 @@
         <div class="container">
             <div id="pronostics" class="page active">
                 <h2 class="section-title">🎯 Pronostics</h2>
+                <div class="bareme-card">
+                    <div class="bareme-title">📋 Comment marquer des points</div>
+                    <div class="bareme-grid">
+                        <div class="bareme-item exact">
+                            <div class="bareme-head"><span>🎯 Score exact</span><span class="bareme-pts">20 pts</span></div>
+                            <div class="bareme-ex">Tu pronostiques 2-1, le match finit 2-1</div>
+                        </div>
+                        <div class="bareme-item ecart">
+                            <div class="bareme-head"><span>📊 Bon écart de buts</span><span class="bareme-pts">15 pts</span></div>
+                            <div class="bareme-ex">Tu pronostiques 2-0, le match finit 3-1 (2 buts d'écart des deux côtés)</div>
+                        </div>
+                        <div class="bareme-item vainqueur">
+                            <div class="bareme-head"><span>✅ Bon vainqueur</span><span class="bareme-pts">10 pts</span></div>
+                            <div class="bareme-ex">Tu pronostiques Canada 1-0, le match finit Canada 3-0</div>
+                        </div>
+                        <div class="bareme-item faux">
+                            <div class="bareme-head"><span>❌ Mauvais résultat</span><span class="bareme-pts">0 pt</span></div>
+                            <div class="bareme-ex">Le vainqueur que tu as prédit n'est pas le bon</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="sub-tabs">
                     <button class="sub-tab-btn active" id="subTabActuels" onclick="showSubTab('actuels')">⏳ Actuels</button>
                     <button class="sub-tab-btn" id="subTabPasses" onclick="showSubTab('passes')">✅ Passés</button>
@@ -465,6 +498,20 @@
             return serverTime >= matchTime;
         }
 
+        // Fonction unique de calcul : score exact (20) > bon écart de buts (15) > bon vainqueur (10) > faux (0)
+        function getPredictionResult(u1, u2, r1, r2) {
+            if (u1 === r1 && u2 === r2) {
+                return { points: 20, label: '✓ Exact (20)', cls: 'prono-exact' };
+            }
+            if ((u1 - u2) === (r1 - r2)) {
+                return { points: 15, label: '✓ Bon écart (15)', cls: 'prono-ecart' };
+            }
+            if ((u1 > u2 && r1 > r2) || (u1 < u2 && r1 < r2) || (u1 === u2 && r1 === r2)) {
+                return { points: 10, label: '✓ Bon vainqueur (10)', cls: 'prono-tendance' };
+            }
+            return { points: 0, label: '✗ Faux (0)', cls: 'prono-faux' };
+        }
+
         function calculatePointsForCurrentUser() {
             let totalPoints = 0;
 
@@ -472,12 +519,7 @@
                 if (results[matchId]) {
                     const [u1, u2] = myPronostics[matchId].split('-').map(Number);
                     const [r1, r2] = results[matchId].split('-').map(Number);
-
-                    if (u1 === r1 && u2 === r2) {
-                        totalPoints += 20;
-                    } else if ((u1 > u2 && r1 > r2) || (u1 < u2 && r1 < r2) || (u1 === u2 && r1 === r2)) {
-                        totalPoints += 10;
-                    }
+                    totalPoints += getPredictionResult(u1, u2, r1, r2).points;
                 }
             }
 
@@ -497,12 +539,7 @@
                         if (results_val[matchId]) {
                             const [u1, u2] = userPronostics[matchId].split('-').map(Number);
                             const [r1, r2] = results_val[matchId].split('-').map(Number);
-
-                            if (u1 === r1 && u2 === r2) {
-                                totalPoints += 20;
-                            } else if ((u1 > u2 && r1 > r2) || (u1 < u2 && r1 < r2) || (u1 === u2 && r1 === r2)) {
-                                totalPoints += 10;
-                            }
+                            totalPoints += getPredictionResult(u1, u2, r1, r2).points;
                         }
                     }
 
@@ -651,28 +688,14 @@
                         const userProno = allPronostics[userId][match.id];
                         const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
                         const userName = allUsers[userId] ? allUsers[userId].name : 'Inconnu';
-                        
-                        let statusClass = '';
-                        let statusText = 'En attente';
 
-                        if (pronoTeam1 === parseInt(s1) && pronoTeam2 === parseInt(s2)) {
-                            statusClass = 'prono-exact';
-                            statusText = '✓ Exact (20)';
-                        } else if ((pronoTeam1 > pronoTeam2 && parseInt(s1) > parseInt(s2)) || 
-                                   (pronoTeam1 < pronoTeam2 && parseInt(s1) < parseInt(s2)) ||
-                                   (pronoTeam1 === pronoTeam2 && parseInt(s1) === parseInt(s2))) {
-                            statusClass = 'prono-tendance';
-                            statusText = '✓ Tendance (10)';
-                        } else {
-                            statusClass = 'prono-faux';
-                            statusText = '✗ Faux (0)';
-                        }
+                        const res = getPredictionResult(pronoTeam1, pronoTeam2, parseInt(s1), parseInt(s2));
 
                         matchPronostics.push({
                             name: userName,
                             prono: userProno,
-                            statusClass: statusClass,
-                            statusText: statusText
+                            statusClass: res.cls,
+                            statusText: res.label
                         });
                     }
                 }
@@ -852,23 +875,14 @@
                     const userProno = userPronostics[matchId];
                     const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
                     const userName = allUsers[userId] ? allUsers[userId].name : 'Inconnu';
-                    
+
                     let statusClass = '';
                     let statusText = 'En attente';
 
                     if (result) {
-                        if (pronoTeam1 === resultTeam1 && pronoTeam2 === resultTeam2) {
-                            statusClass = 'prono-exact';
-                            statusText = '✓ Exact';
-                        } else if ((pronoTeam1 > pronoTeam2 && resultTeam1 > resultTeam2) || 
-                                   (pronoTeam1 < pronoTeam2 && resultTeam1 < resultTeam2) ||
-                                   (pronoTeam1 === pronoTeam2 && resultTeam1 === resultTeam2)) {
-                            statusClass = 'prono-tendance';
-                            statusText = '✓ Tendance';
-                        } else {
-                            statusClass = 'prono-faux';
-                            statusText = '✗ Faux';
-                        }
+                        const res = getPredictionResult(pronoTeam1, pronoTeam2, resultTeam1, resultTeam2);
+                        statusClass = res.cls;
+                        statusText = res.label;
                     }
 
                     tableHTML += `<tr>
