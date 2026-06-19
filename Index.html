@@ -6,6 +6,7 @@
     <title>EOL - Coupe du Monde 2026</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); color: #1f2937; }
@@ -23,6 +24,9 @@
         .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
         .alert-error { background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; }
         .alert-success { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+        .login-mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .login-mode-btn { flex: 1; background: #f3f4f6; color: #6b7280; border: 2px solid #e5e7eb; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .login-mode-btn.active { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border-color: #00a8e8; }
         header { background: linear-gradient(135deg, #0f2744 0%, #1a3a52 100%); color: white; padding: 20px 30px; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; }
         .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
         .nav { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -118,24 +122,38 @@
                 <p>Phase de Groupe - Juin 2026</p>
             </div>
             <div id="loginAlert"></div>
-            <form onsubmit="handleLogin(event)">
+
+            <div class="login-mode-tabs">
+                <button type="button" class="login-mode-btn active" id="modeJoueur" onclick="setLoginMode('joueur')">👤 Joueur</button>
+                <button type="button" class="login-mode-btn" id="modeAdmin" onclick="setLoginMode('admin')">⚙️ Admin</button>
+            </div>
+
+            <form id="playerForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Prénom</label>
-                    <input type="text" id="firstName" placeholder="Pierre" required>
+                    <input type="text" id="firstName" placeholder="Pierre">
                 </div>
                 <div class="form-group">
                     <label>Nom</label>
-                    <input type="text" id="lastName" placeholder="Dupont" required>
+                    <input type="text" id="lastName" placeholder="Dupont">
                 </div>
                 <div class="form-group">
                     <label>Mot de Passe</label>
-                    <input type="password" id="password" placeholder="Votre mot de passe sécurisé" required>
-                </div>
-                <div class="form-group">
-                    <label>Code Admin (optionnel)</label>
-                    <input type="password" id="adminCode" placeholder="Optionnel">
+                    <input type="password" id="password" placeholder="Votre mot de passe sécurisé">
                 </div>
                 <button type="submit" class="btn-login">Accéder</button>
+            </form>
+
+            <form id="adminForm" onsubmit="handleAdminLogin(event)" style="display: none;">
+                <div class="form-group">
+                    <label>E-mail administrateur</label>
+                    <input type="email" id="adminEmail" placeholder="admin@exemple.com">
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe administrateur</label>
+                    <input type="password" id="adminPassword" placeholder="Votre mot de passe admin">
+                </div>
+                <button type="submit" class="btn-login">Connexion Admin</button>
             </form>
         </div>
     </div>
@@ -323,6 +341,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
 
         const allMatches = [
             { id: 1, team1: '🇵🇹 Portugal', team2: '🇨🇩 RD Congo', date: '17/06/2026', time: '18:00', group: 'K' },
@@ -396,12 +415,20 @@
             }, 4000);
         }
 
+        function setLoginMode(mode) {
+            const isAdminMode = (mode === 'admin');
+            document.getElementById('playerForm').style.display = isAdminMode ? 'none' : 'block';
+            document.getElementById('adminForm').style.display = isAdminMode ? 'block' : 'none';
+            document.getElementById('modeJoueur').classList.toggle('active', !isAdminMode);
+            document.getElementById('modeAdmin').classList.toggle('active', isAdminMode);
+            document.getElementById('loginAlert').innerHTML = '';
+        }
+
         function handleLogin(e) {
             e.preventDefault();
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const password = document.getElementById('password').value;
-            const adminCode = document.getElementById('adminCode').value;
 
             if (!firstName || !lastName || !password) {
                 showAlert('❌ Tous les champs sont obligatoires', 'error');
@@ -414,7 +441,7 @@
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
                     if (userData.password === password) {
-                        loginSuccess(userId, firstName + ' ' + lastName, adminCode);
+                        loginSuccess(userId, firstName + ' ' + lastName, false);
                     } else {
                         showAlert('❌ Mot de passe incorrect', 'error');
                     }
@@ -425,15 +452,34 @@
                         points: 0
                     }).then(() => {
                         showAlert('✅ Compte créé avec succès!', 'success');
-                        loginSuccess(userId, firstName + ' ' + lastName, adminCode);
+                        loginSuccess(userId, firstName + ' ' + lastName, false);
                     });
                 }
             });
         }
 
-        function loginSuccess(userId, fullName, adminCode) {
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (!email || !password) {
+                showAlert('❌ E-mail et mot de passe requis', 'error');
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((cred) => {
+                    loginSuccess('__admin__', 'Administrateur', true);
+                })
+                .catch((error) => {
+                    showAlert('❌ E-mail ou mot de passe administrateur incorrect', 'error');
+                });
+        }
+
+        function loginSuccess(userId, fullName, adminFlag) {
             currentUser = { id: userId, fullName: fullName };
-            isAdmin = (adminCode === '199707');
+            isAdmin = adminFlag;
 
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
@@ -456,16 +502,18 @@
         }
 
         function loadData() {
-            db.ref('pronostics/' + currentUser.id).on('value', snapshot => {
-                myPronostics = snapshot.val() || {};
-                loadMatches();
-            });
+            if (!isAdmin) {
+                db.ref('pronostics/' + currentUser.id).on('value', snapshot => {
+                    myPronostics = snapshot.val() || {};
+                    loadMatches();
+                });
+            }
 
             db.ref('results').on('value', snapshot => {
                 results = snapshot.val() || {};
                 loadMatches();
                 loadResultats();
-                calculatePointsForCurrentUser();
+                if (!isAdmin) calculatePointsForCurrentUser();
             });
 
             db.ref('goals').on('value', snapshot => {
@@ -955,6 +1003,9 @@
         }
 
         function logout() {
+            if (isAdmin) {
+                auth.signOut();
+            }
             currentUser = null;
             isAdmin = false;
             document.getElementById('mainApp').style.display = 'none';
@@ -962,8 +1013,10 @@
             document.getElementById('firstName').value = '';
             document.getElementById('lastName').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('adminCode').value = '';
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
             document.getElementById('loginAlert').innerHTML = '';
+            setLoginMode('joueur');
         }
     </script>
 </body>
