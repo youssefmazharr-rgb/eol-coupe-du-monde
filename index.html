@@ -83,6 +83,21 @@
         .prono-tendance { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .prono-faux { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .pronostics-table tbody tr:nth-child(odd) { background: #fafafa; }
+        .prono-summary { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+        .sum-pill { font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+        .sum-exact { background:#dcfce7; color:#166534; }
+        .sum-ecart { background:#cffafe; color:#155e75; }
+        .sum-vainq { background:#fef3c7; color:#92400e; }
+        .sum-faux { background:#fee2e2; color:#991b1b; }
+        .toggle-prono { width:100%; margin-top:14px; background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; padding:12px 16px; cursor:pointer; font-weight:600; font-size:14px; color:#0f2744; display:flex; justify-content:space-between; align-items:center; }
+        .toggle-prono:hover { background:#e0f2fe; border-color:#00a8e8; }
+        .prono-panel { margin-top:12px; }
+        .prono-search { width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:8px; font-size:13px; margin-bottom:12px; }
+        .prono-search:focus { outline:none; border-color:#0099ff; }
+        .prono-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px; max-height:340px; overflow-y:auto; padding-right:4px; }
+        .prono-row { display:flex; align-items:center; gap:8px; background:#f9fafb; border:1px solid #eef0f2; border-radius:8px; padding:8px 10px; font-size:12.5px; }
+        .pr-name { flex:1; font-weight:600; color:#0f2744; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pr-score { font-weight:700; color:#0f2744; }
         .players-table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); margin-top: 20px; }
         .players-table thead { background: #0f2744; color: white; }
         .players-table th { padding: 12px; text-align: left; font-weight: 600; font-size: 12px; }
@@ -744,21 +759,24 @@
                 const [s1, s2] = result.split('-');
                 const goalsHTML = getGoalsHTML(match.id);
 
-                let pronosticsHTML = '';
                 const matchPronostics = [];
+                let nExact = 0, nEcart = 0, nVainq = 0, nFaux = 0;
 
                 for (let userId in allPronostics) {
                     if (allPronostics[userId][match.id]) {
                         const userInfo = allUsers[userId];
                         const userName = userInfo && userInfo.name ? String(userInfo.name).trim() : '';
-                        // Ignorer les comptes sans nom valide (résidus de test)
                         if (!userName || userName.toLowerCase() === 'undefined' || userId === '__admin__') {
                             continue;
                         }
                         const userProno = allPronostics[userId][match.id];
                         const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
-
                         const res = getPredictionResult(pronoTeam1, pronoTeam2, parseInt(s1), parseInt(s2));
+
+                        if (res.points === 20) nExact++;
+                        else if (res.points === 15) nEcart++;
+                        else if (res.points === 10) nVainq++;
+                        else nFaux++;
 
                         matchPronostics.push({
                             name: userName,
@@ -769,12 +787,42 @@
                     }
                 }
 
-                if (matchPronostics.length > 0) {
-                    pronosticsHTML = '<table class="pronostics-table"><thead><tr><th>Joueur</th><th>Pronostic</th><th>Statut</th></tr></thead><tbody>';
+                // tri : meilleurs résultats en premier
+                const order = { 'prono-exact':0, 'prono-ecart':1, 'prono-tendance':2, 'prono-faux':3 };
+                matchPronostics.sort((a,b) => order[a.statusClass] - order[b.statusClass] || a.name.localeCompare(b.name));
+
+                const total = matchPronostics.length;
+
+                let summaryHTML = '';
+                let pronosticsBlock = '';
+                if (total > 0) {
+                    summaryHTML = `
+                        <div class="prono-summary">
+                            <span class="sum-pill sum-exact">🎯 ${nExact} exact${nExact>1?'s':''}</span>
+                            <span class="sum-pill sum-ecart">📊 ${nEcart} bon écart</span>
+                            <span class="sum-pill sum-vainq">✅ ${nVainq} bon vainqueur</span>
+                            <span class="sum-pill sum-faux">❌ ${nFaux} faux</span>
+                        </div>`;
+
+                    let rows = '';
                     matchPronostics.forEach(p => {
-                        pronosticsHTML += `<tr><td>${p.name}</td><td><strong>${p.prono}</strong></td><td><span class="${p.statusClass}">${p.statusText}</span></td></tr>`;
+                        rows += `<div class="prono-row" data-name="${p.name.toLowerCase()}">
+                            <span class="pr-name">${p.name}</span>
+                            <span class="pr-score">${p.prono}</span>
+                            <span class="${p.statusClass}">${p.statusText}</span>
+                        </div>`;
                     });
-                    pronosticsHTML += '</tbody></table>';
+
+                    pronosticsBlock = `
+                        <button class="toggle-prono" onclick="toggleProno(${match.id})">
+                            <span id="toggle-label-${match.id}">👥 Voir les pronostics des joueurs (${total})</span>
+                            <span id="toggle-arrow-${match.id}">▾</span>
+                        </button>
+                        <div class="prono-panel" id="prono-panel-${match.id}" style="display:none;">
+                            <input type="text" class="prono-search" placeholder="🔍 Rechercher un joueur..."
+                                   oninput="filterProno(${match.id}, this.value)">
+                            <div class="prono-list" id="prono-list-${match.id}">${rows}</div>
+                        </div>`;
                 }
 
                 return `
@@ -785,10 +833,29 @@
                             <div class="result-teams">${match.team2}</div>
                         </div>
                         ${goalsHTML ? `<div class="result-goals">${goalsHTML}</div>` : ''}
-                        ${pronosticsHTML ? `<div style="margin-top: 16px;"><strong style="color: #0f2744;">📊 Tous les Pronostics:</strong>${pronosticsHTML}</div>` : ''}
+                        ${summaryHTML}
+                        ${pronosticsBlock}
                     </div>
                 `;
             }).join('');
+        }
+
+        function toggleProno(matchId) {
+            const panel = document.getElementById('prono-panel-' + matchId);
+            const arrow = document.getElementById('toggle-arrow-' + matchId);
+            const label = document.getElementById('toggle-label-' + matchId);
+            const open = panel.style.display === 'none';
+            panel.style.display = open ? 'block' : 'none';
+            arrow.textContent = open ? '▴' : '▾';
+            label.textContent = label.textContent.replace(open ? 'Voir' : 'Masquer', open ? 'Masquer' : 'Voir');
+        }
+
+        function filterProno(matchId, query) {
+            const q = query.toLowerCase().trim();
+            const rows = document.querySelectorAll('#prono-list-' + matchId + ' .prono-row');
+            rows.forEach(r => {
+                r.style.display = r.getAttribute('data-name').includes(q) ? 'flex' : 'none';
+            });
         }
 
         function saveProno(id) {
