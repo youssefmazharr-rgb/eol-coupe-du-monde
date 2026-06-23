@@ -121,6 +121,7 @@
         .bareme-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); border: 1px solid #e5e7eb; margin-bottom: 24px; }
         .bareme-title { font-size: 16px; font-weight: 700; color: #0f2744; margin-bottom: 16px; }
         .bareme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .bareme-note { margin-top: 16px; background: #ecfeff; border: 1px solid #a5f3fc; border-left: 4px solid #06b6d4; border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #155e75; line-height: 1.6; }
         .bareme-item { padding: 14px; border-radius: 10px; border-left: 4px solid; }
         .bareme-item.exact { background: #f0fdf4; border-color: #22c55e; }
         .bareme-item.ecart { background: #ecfeff; border-color: #06b6d4; }
@@ -226,6 +227,10 @@
                             <div class="bareme-head"><span>❌ Mauvais résultat</span><span class="bareme-pts">0 pt</span></div>
                             <div class="bareme-ex">Le vainqueur que tu as prédit n'est pas le bon</div>
                         </div>
+                    </div>
+                    <div class="bareme-note">
+                        💡 <strong>Le « bon écart », c'est quoi ?</strong> Ce n'est pas « un score proche » : il faut prévoir le <strong>même nombre de buts d'écart</strong> que le vrai résultat.
+                        Exemple : le match finit <strong>5-0</strong> (5 buts d'écart). Si tu as mis <strong>4-0</strong> (4 buts d'écart), ce n'est pas le bon écart → tu as quand même trouvé le vainqueur, donc <strong>10 points</strong>. Pour avoir 15 points, il aurait fallu un score à 5 buts d'écart (ex. 6-1, 7-2…).
                     </div>
                 </div>
                 <div class="sub-tabs">
