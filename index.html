@@ -27,6 +27,9 @@
         .login-mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
         .login-mode-btn { flex: 1; background: #f3f4f6; color: #6b7280; border: 2px solid #e5e7eb; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
         .login-mode-btn.active { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border-color: #00a8e8; }
+        .login-help { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e5e7eb; text-align: center; }
+        .login-help p { font-size: 12.5px; color: #6b7280; line-height: 1.5; margin: 0; }
+        .login-help-contact { margin-top: 8px !important; font-weight: 600; color: #0f2744 !important; font-size: 13px !important; }
         header { background: linear-gradient(135deg, #0f2744 0%, #1a3a52 100%); color: white; padding: 20px 30px; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; }
         .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
         .nav { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -155,6 +158,11 @@
                 </div>
                 <button type="submit" class="btn-login">Connexion Admin</button>
             </form>
+
+            <div class="login-help">
+                <p>En cas de difficulté de connexion, contactez directement l'administrateur par WhatsApp ou par e-mail, en mentionnant « Ticket pronostic ».</p>
+                <p class="login-help-contact">📱 06 60 96 21 06 &nbsp;·&nbsp; ✉️ y.mazhar@eolcenter.net</p>
+            </div>
         </div>
     </div>
 
@@ -436,6 +444,7 @@
             }
 
             const userId = firstName.toLowerCase() + '_' + lastName.toLowerCase();
+            const reversedId = lastName.toLowerCase() + '_' + firstName.toLowerCase();
 
             db.ref('users/' + userId).once('value', snapshot => {
                 if (snapshot.exists()) {
@@ -446,13 +455,20 @@
                         showAlert('❌ Mot de passe incorrect', 'error');
                     }
                 } else {
-                    db.ref('users/' + userId).set({
-                        name: firstName + ' ' + lastName,
-                        password: password,
-                        points: 0
-                    }).then(() => {
-                        showAlert('✅ Compte créé avec succès!', 'success');
-                        loginSuccess(userId, firstName + ' ' + lastName, false);
+                    // Vérifier qu'un compte avec prénom/nom inversés n'existe pas déjà
+                    db.ref('users/' + reversedId).once('value', revSnap => {
+                        if (reversedId !== userId && revSnap.exists()) {
+                            showAlert('⚠️ Un compte similaire existe déjà. Une seule inscription par personne. Connectez-vous avec votre mot de passe, ou vérifiez l\'ordre prénom/nom.', 'error');
+                            return;
+                        }
+                        db.ref('users/' + userId).set({
+                            name: firstName + ' ' + lastName,
+                            password: password,
+                            points: 0
+                        }).then(() => {
+                            showAlert('✅ Compte créé avec succès!', 'success');
+                            loginSuccess(userId, firstName + ' ' + lastName, false);
+                        });
                     });
                 }
             });
