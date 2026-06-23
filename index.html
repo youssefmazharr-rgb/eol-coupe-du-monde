@@ -733,9 +733,14 @@
 
                 for (let userId in allPronostics) {
                     if (allPronostics[userId][match.id]) {
+                        const userInfo = allUsers[userId];
+                        const userName = userInfo && userInfo.name ? String(userInfo.name).trim() : '';
+                        // Ignorer les comptes sans nom valide (résidus de test)
+                        if (!userName || userName.toLowerCase() === 'undefined' || userId === '__admin__') {
+                            continue;
+                        }
                         const userProno = allPronostics[userId][match.id];
                         const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
-                        const userName = allUsers[userId] ? allUsers[userId].name : 'Inconnu';
 
                         const res = getPredictionResult(pronoTeam1, pronoTeam2, parseInt(s1), parseInt(s2));
 
@@ -920,9 +925,13 @@
             for (let userId in allPronostics) {
                 const userPronostics = allPronostics[userId];
                 if (userPronostics[matchId]) {
+                    const userInfo = allUsers[userId];
+                    const userName = userInfo && userInfo.name ? String(userInfo.name).trim() : '';
+                    if (!userName || userName.toLowerCase() === 'undefined' || userId === '__admin__') {
+                        continue;
+                    }
                     const userProno = userPronostics[matchId];
                     const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
-                    const userName = allUsers[userId] ? allUsers[userId].name : 'Inconnu';
 
                     let statusClass = '';
                     let statusText = 'En attente';
@@ -950,7 +959,13 @@
             db.ref('users').orderByChild('points').limitToLast(50).on('value', snapshot => {
                 const users = [];
                 snapshot.forEach(child => {
-                    users.push({ name: child.val().name, points: child.val().points || 0 });
+                    const val = child.val();
+                    const name = val && val.name ? String(val.name).trim() : '';
+                    // Ignorer les comptes techniques/test sans nom valide (ex: __admin__, undefined)
+                    if (!name || name.toLowerCase() === 'undefined' || child.key === '__admin__') {
+                        return;
+                    }
+                    users.push({ name: name, points: val.points || 0 });
                 });
                 users.reverse();
 
