@@ -117,6 +117,7 @@
         .sub-tab-btn { background: white; color: #6b7280; border: 2px solid #e5e7eb; padding: 12px 28px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
         .sub-tab-btn:hover { border-color: #00a8e8; color: #0099ff; }
         .sub-tab-btn.active { background: linear-gradient(135deg, #0099ff, #00a8e8); color: white; border-color: #00a8e8; }
+
         .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; font-size: 15px; }
         .bareme-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); border: 1px solid #e5e7eb; margin-bottom: 24px; }
         .bareme-title { font-size: 16px; font-weight: 700; color: #0f2744; margin-bottom: 16px; }
@@ -484,7 +485,8 @@
                         db.ref('users/' + userId).set({
                             name: firstName + ' ' + lastName,
                             password: password,
-                            points: 0
+                            points: 0,
+                            bonus: 0
                         }).then(() => {
                             showAlert('✅ Compte créé avec succès!', 'success');
                             loginSuccess(userId, firstName + ' ' + lastName, false);
@@ -607,28 +609,41 @@
                 }
             }
 
-            db.ref('users/' + currentUser.id + '/points').set(totalPoints);
+            // Ajouter le bonus admin (champ séparé, jamais écrasé par le recalcul)
+            db.ref('users/' + currentUser.id).once('value', snap => {
+                const v = snap.val() || {};
+                const bonus = parseInt(v.bonus) || 0;
+                db.ref('users/' + currentUser.id + '/points').set(totalPoints + bonus);
+            });
         }
 
         function recalculateAllPoints() {
-            db.ref('pronostics').once('value', (pronosticsSnapshot) => {
-                const allPronostics = pronosticsSnapshot.val() || {};
-                const results_val = results;
+            db.ref('users').once('value', (usersSnapshot) => {
+                const usersData = usersSnapshot.val() || {};
+                db.ref('pronostics').once('value', (pronosticsSnapshot) => {
+                    const allPronostics = pronosticsSnapshot.val() || {};
+                    const results_val = results;
 
-                for (let userId in allPronostics) {
-                    let totalPoints = 0;
-                    const userPronostics = allPronostics[userId];
+                    // Recalcule pour TOUS les comptes (même ceux sans pronostics, pour garder leur bonus)
+                    const allUserIds = new Set([...Object.keys(usersData), ...Object.keys(allPronostics)]);
 
-                    for (let matchId in userPronostics) {
-                        if (results_val[matchId]) {
-                            const [u1, u2] = userPronostics[matchId].split('-').map(Number);
-                            const [r1, r2] = results_val[matchId].split('-').map(Number);
-                            totalPoints += getPredictionResult(u1, u2, r1, r2).points;
+                    allUserIds.forEach(userId => {
+                        let totalPoints = 0;
+                        const userPronostics = allPronostics[userId] || {};
+
+                        for (let matchId in userPronostics) {
+                            if (results_val[matchId]) {
+                                const [u1, u2] = userPronostics[matchId].split('-').map(Number);
+                                const [r1, r2] = results_val[matchId].split('-').map(Number);
+                                totalPoints += getPredictionResult(u1, u2, r1, r2).points;
+                            }
                         }
-                    }
 
-                    db.ref('users/' + userId + '/points').set(totalPoints);
-                }
+                        // Conserver le bonus admin (jamais écrasé par le recalcul)
+                        const bonus = parseInt(usersData[userId] && usersData[userId].bonus) || 0;
+                        db.ref('users/' + userId + '/points').set(totalPoints + bonus);
+                    });
+                });
             });
         }
 
@@ -936,15 +951,21 @@
             }
 
             const adjustValue = parseInt(adjust);
-            const currentPoints = parseInt(document.getElementById('currentPoints').value);
-            const newPoints = Math.max(0, currentPoints + adjustValue);
 
-            db.ref('users/' + userId + '/points').set(newPoints).then(() => {
-                alert('✓ Points ajustés!');
-                document.getElementById('pointsAdjust').value = '';
-                document.getElementById('pointsReason').value = '';
-                document.getElementById('playerSelect').value = '';
-                document.getElementById('currentPoints').value = '';
+            // On lit le bonus permanent actuel, on y ajoute l'ajustement, puis on relance le recalcul.
+            // Le bonus n'est JAMAIS écrasé par le recalcul : l'ajustement est donc permanent.
+            db.ref('users/' + userId + '/bonus').once('value', bonusSnap => {
+                const currentBonus = parseInt(bonusSnap.val()) || 0;
+                const newBonus = currentBonus + adjustValue;
+
+                db.ref('users/' + userId + '/bonus').set(newBonus).then(() => {
+                    recalculateAllPoints();
+                    alert('✓ Ajustement permanent appliqué (' + (adjustValue >= 0 ? '+' : '') + adjustValue + ' pts). Bonus total : ' + newBonus + ' pts.');
+                    document.getElementById('pointsAdjust').value = '';
+                    document.getElementById('pointsReason').value = '';
+                    document.getElementById('playerSelect').value = '';
+                    document.getElementById('currentPoints').value = '';
+                });
             });
         }
 
@@ -1044,7 +1065,7 @@
         }
 
         function loadRanking() {
-            db.ref('users').orderByChild('points').limitToLast(50).on('value', snapshot => {
+            db.ref('users').orderByChild('points').limitToLast(500).on('value', snapshot => {
                 const users = [];
                 snapshot.forEach(child => {
                     const val = child.val();
@@ -1102,7 +1123,7 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            if (typeof event !== 'undefined' && event && event.target) event.target.classList.add('active');
         }
 
         function logout() {
