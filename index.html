@@ -353,6 +353,17 @@
                     </div>
                     <div id="playersContainer" style="margin-top: 20px;"></div>
                 </div>
+
+                <div class="admin-section">
+                    <h3>🔒 Sécurité anti-triche</h3>
+                    <p style="color:#374151; font-size:14px; margin-bottom:16px;">
+                        Enregistre les horaires de tous les matchs dans la base. Cela active le verrou serveur :
+                        une fois le coup d'envoi passé, plus aucun joueur ne peut enregistrer ou modifier son pronostic (toi, admin, tu gardes l'accès).
+                        À relancer si tu ajoutes de nouveaux matchs.
+                    </p>
+                    <div class="alert alert-success" id="matchTimesMsg" style="display:none;"></div>
+                    <button class="btn-primary" onclick="initMatchTimes()">⏱️ Initialiser / mettre à jour les horaires</button>
+                </div>
             </div>
         </div>
     </div>
@@ -879,6 +890,13 @@
         }
 
         function saveProno(id) {
+            const match = allMatches.find(m => m.id == id);
+            if (match && isMatchStarted(match)) {
+                alert('⛔ Les pronostics sont fermés pour ce match : le coup d\'envoi est passé.');
+                loadMatches();
+                return;
+            }
+
             const s1 = document.getElementById('p1_' + id).value;
             const s2 = document.getElementById('p2_' + id).value;
 
@@ -889,6 +907,8 @@
 
             db.ref('pronostics/' + currentUser.id + '/' + id).set(s1 + '-' + s2).then(() => {
                 alert('✓ Enregistré!');
+            }).catch(() => {
+                alert('⛔ Enregistrement refusé : ce match est fermé (coup d\'envoi passé).');
             });
         }
 
@@ -939,6 +959,30 @@
 
             const points = allUsers[userId].points || 0;
             document.getElementById('currentPoints').value = points;
+        }
+
+        // Enregistre l'heure de coup d'envoi (en millisecondes UTC) de chaque match dans Firebase.
+        // Maroc = UTC+1 toute l'année (hors Ramadan) → on retire 1h pour obtenir l'heure UTC.
+        function initMatchTimes() {
+            const MAROC_UTC_OFFSET = 1; // UTC+1
+            const times = {};
+            allMatches.forEach(m => {
+                const [day, month, year] = m.date.split('/').map(Number);
+                const [hours, minutes] = m.time.split(':').map(Number);
+                // Date.UTC gère automatiquement les heures négatives (ex. 00:00 - 1h = 23:00 la veille)
+                times[m.id] = Date.UTC(year, month - 1, day, hours - MAROC_UTC_OFFSET, minutes, 0);
+            });
+
+            const msg = document.getElementById('matchTimesMsg');
+            db.ref('matchTimes').set(times).then(() => {
+                msg.style.display = 'block';
+                msg.textContent = '✅ Horaires enregistrés (' + Object.keys(times).length + ' matchs). Le verrou anti-triche est actif.';
+                setTimeout(() => { msg.style.display = 'none'; }, 5000);
+            }).catch((e) => {
+                msg.style.display = 'block';
+                msg.className = 'alert alert-error';
+                msg.textContent = '⛔ Échec : assure-toi d\'être connecté en admin et d\'avoir publié les règles Firebase. (' + e.message + ')';
+            });
         }
 
         function adjustPoints() {
