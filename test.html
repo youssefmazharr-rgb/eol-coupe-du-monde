@@ -144,6 +144,84 @@
         .bareme-pts{background:rgba(255,255,255,.12);color:#fff;padding:2px 10px;border-radius:20px;font-size:12px;}
         .bareme-ex{font-size:12px;color:var(--muted);font-style:italic;}
 
+        /* ===== Mini-jeux ===== */
+        .games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+        .game-card{background:linear-gradient(160deg,rgba(139,92,246,.10),var(--surface));border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(10px);}
+        .game-card .gico{font-size:34px;}
+        .game-card h4{font-size:17px;font-weight:700;color:#fff;}
+        .game-card p{color:var(--muted);font-size:13px;flex:1;line-height:1.5;}
+        .gbadge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;width:fit-content;}
+        .gb-easy{background:rgba(34,197,94,.15);color:#6ee79e;}
+        .gb-med{background:rgba(245,196,81,.15);color:#f5d98a;}
+        .gb-hard{background:rgba(239,68,68,.15);color:#ff9a9a;}
+        .gfoot{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+        .greward{font-size:12px;color:var(--gold);font-weight:700;}
+        .gbtn{border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;}
+        .gbtn:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;}
+        .fmodal-bg{position:fixed;inset:0;z-index:2000;background:rgba(4,8,20,.8);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px;}
+        .fmodal-bg.open{display:flex;}
+        .fmodal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:520px;max-height:94vh;overflow:auto;padding:26px;position:relative;}
+        .fmodal h3{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
+        .fmclose{position:absolute;top:14px;right:18px;cursor:pointer;color:var(--muted);font-size:26px;line-height:1;}
+        .ftimer{height:8px;background:var(--surface2);border-radius:20px;overflow:hidden;margin:10px 0 14px;}
+        .ftimer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));border-radius:20px;transition:width .1s linear;}
+        .qopt{display:block;width:100%;text-align:left;margin:8px 0;padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;cursor:pointer;}
+        .qopt:hover{background:var(--surface2);border-color:var(--primary);}
+        .qopt.good{background:rgba(34,197,94,.18);border-color:var(--green);}
+        .qopt.bad{background:rgba(239,68,68,.18);border-color:var(--red);}
+        .qprog{color:var(--muted);font-size:13px;margin-bottom:4px;}
+        .qdiff{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;}
+        .bigflag{display:flex;justify-content:center;margin:6px 0 12px;}
+        .bigflag img{width:210px;max-width:75%;border-radius:8px;box-shadow:0 8px 26px rgba(0,0,0,.45);}
+        .fresult{text-align:center;padding:10px;}
+        .fresult .rsc{font-size:42px;font-weight:800;color:#fff;margin:6px 0;}
+        .funtag{display:inline-block;font-size:11px;font-weight:700;color:#c9b6ff;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);padding:4px 10px;border-radius:20px;margin:6px 0;}
+        .flocked{text-align:center;color:var(--muted);padding:18px;font-size:14px;}
+        .gift{font-size:60px;cursor:pointer;display:inline-block;animation:wig 1.2s ease-in-out infinite;}
+        @keyframes wig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+        .sreveal{font-size:18px;font-weight:800;margin-top:10px;color:var(--gold);}
+        .confx{position:fixed;width:10px;height:14px;top:-20px;z-index:3000;pointer-events:none;border-radius:2px;}
+        .memgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;}
+        .memcard{position:relative;aspect-ratio:1;border-radius:10px;cursor:pointer;border:1px solid var(--border);}
+        .mback,.mface{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:10px;}
+        .mback{background:linear-gradient(135deg,#1b2c5e,#24306a);font-size:22px;font-weight:800;color:#6f86c9;}
+        .mface{display:none;background:var(--surface2);}
+        .mface img{width:78%;border-radius:4px;}
+        .memcard.open .mface,.memcard.done .mface{display:flex;}
+        .memcard.open .mback,.memcard.done .mback{display:none;}
+        .memcard.done{border-color:var(--green);box-shadow:0 0 0 2px rgba(34,197,94,.4);}
+        .fbrow{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;font-size:14px;border-bottom:1px solid var(--border);}
+        .fbrow.me{background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);}
+        .fbmed{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#1a1a1a;}
+        .fb1{background:var(--gold);}.fb2{background:#cdd5e0;}.fb3{background:#e0a071;}.fbx{background:var(--surface2);color:var(--muted);}
+        .fbname{flex:1;font-weight:600;color:var(--text);}
+        .fbpts{font-weight:700;color:var(--purple);}
+        .pen-ov{position:fixed;inset:0;z-index:2500;background:rgba(4,8,20,.92);backdrop-filter:blur(8px);display:none;overflow:auto;padding:20px;}
+        .pen-ov.open{display:block;}
+        .pen-inner{max-width:760px;margin:0 auto;}
+        .pen-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+        .pen-head h2{font-size:24px;font-weight:800;color:#fff;}
+        .pen-field{position:relative;width:100%;aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:linear-gradient(180deg,#0a2a55 0%,#103a1d 40%,#1a5a2c 100%);}
+        .pen-goal{position:absolute;top:13%;left:17%;right:17%;height:46%;border:7px solid #eef2ff;border-bottom:none;border-radius:4px 4px 0 0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,transparent 1px 16px),repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 16px);}
+        .pen-zone{position:absolute;top:17%;height:36%;width:20%;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;border:2px solid transparent;z-index:5;transition:.15s;}
+        .pen-zone:hover{transform:scale(1.05);}
+        .pen-zone.dim{opacity:.3;pointer-events:none;}
+        .pzL{left:20%;background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.6);color:#ffe1e1;}
+        .pzC{left:40%;background:rgba(245,196,81,.16);border-color:rgba(245,196,81,.6);color:#fff4d6;}
+        .pzR{left:60%;background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.6);color:#dcffe8;}
+        .pen-keeper{position:absolute;left:50%;top:34%;height:20%;transform:translateX(-50%);transition:.45s cubic-bezier(.34,1.4,.6,1);z-index:6;}
+        .pen-keeper svg{height:100%;width:auto;}
+        .pen-ball{position:absolute;left:50%;top:74%;width:6%;transform:translateX(-50%);transition:.45s cubic-bezier(.45,-0.3,.6,1.5);z-index:7;}
+        .pen-ball svg{width:100%;}
+        .pen-banner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:6vw;font-weight:800;color:#fff;text-shadow:0 6px 22px rgba(0,0,0,.9);opacity:0;z-index:8;pointer-events:none;}
+        .pen-banner.show{animation:popb .9s;}
+        @keyframes popb{0%{opacity:0;transform:scale(.5)}30%{opacity:1;transform:scale(1.1)}70%{opacity:1}100%{opacity:0}}
+        .pen-hud{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:12px;flex-wrap:wrap;}
+        .pen-dots{display:flex;gap:6px;}
+        .pen-dots span{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.5);}
+        .pen-dots span.goal{background:var(--green);border-color:var(--green);}
+        .pen-dots span.miss{background:var(--red);border-color:var(--red);}
+        .pen-action{color:var(--muted);font-size:14px;font-weight:600;}
         /* ===== Sidebar + Dashboard (look démo) ===== */
         .sidebar{position:fixed;top:0;left:0;height:100vh;width:248px;background:rgba(7,14,34,.65);backdrop-filter:blur(14px);border-right:1px solid var(--border);padding:22px 16px;display:flex;flex-direction:column;gap:6px;z-index:1000;overflow-y:auto;}
         .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:0 6px;}
@@ -252,6 +330,8 @@
             <button class="nav-item" data-page="resultats" onclick="showPage('resultats')">📊 Résultats</button>
             <button class="nav-item" data-page="classement" onclick="showPage('classement')">🏆 Classement</button>
             <button class="nav-item" data-page="regles" onclick="showPage('regles')">📋 Règles</button>
+            <button class="nav-item" data-page="minijeux" onclick="showPage('minijeux')">🎮 Mini-jeux</button>
+            <button class="nav-item" data-page="classementFun" onclick="showPage('classementFun')">🏅 Classement Fun</button>
             <button class="nav-item" data-page="admin" id="adminBtn" onclick="showPage('admin')" style="display:none;">⚙️ Admin</button>
             <div class="side-user"><div class="avatar" id="sideAvatar">YO</div><div><div id="userName" style="font-weight:600;color:#fff;font-size:13px;"></div><span class="tag" id="sideTag">JOUEUR</span></div></div>
             <button class="btn-logout" onclick="logout()">Déconnexion</button>
@@ -373,6 +453,18 @@
                 </div>
             </div>
 
+            <div id="minijeux" class="page">
+                <h2 class="section-title">🎮 Mini-jeux</h2>
+                <div class="welcome-banner">Un jeu fun par jour, jusqu'à <b>5 points</b> + une surprise 🎁 — ça ne compte <b>PAS</b> pour les lots, juste pour l'ambiance !</div>
+                <div class="games-grid" id="gamesGrid"></div>
+            </div>
+
+            <div id="classementFun" class="page">
+                <h2 class="section-title">🏅 Classement Fun</h2>
+                <p class="dash-sub">Le classement des mini-jeux — juste pour le plaisir, il ne décide pas des lots.</p>
+                <div class="admin-section" id="funBoard"></div>
+            </div>
+
             <div id="admin" class="page">
                 <h2 class="section-title">⚙️ Admin</h2>
                 
@@ -488,6 +580,27 @@
             </div>
         </div>
     </div>
+
+    <div class="fmodal-bg" id="funModalBg"><div class="fmodal" id="funModal"></div></div>
+    <div class="pen-ov" id="penOv"><div class="pen-inner">
+        <div class="pen-head"><h2>⚽ Défi Pénalty</h2><button class="gbtn" onclick="closePenalty()">✕ Fermer</button></div>
+        <div id="penGameWrap">
+            <div class="pen-field" id="penField">
+                <div class="pen-goal"></div>
+                <div class="pen-zone pzL" onclick="penShoot(0)"><span>75%</span></div>
+                <div class="pen-zone pzC" onclick="penShoot(1)"><span>50%</span></div>
+                <div class="pen-zone pzR" onclick="penShoot(2)"><span>75%</span></div>
+                <div class="pen-keeper" id="penKeeper"></div>
+                <div class="pen-ball" id="penBall"></div>
+                <div class="pen-banner" id="penBanner"></div>
+            </div>
+            <div class="pen-hud"><div class="pen-dots" id="penDots"></div><div class="pen-action" id="penAction">Clique sur une cible pour tirer</div></div>
+            <p style="color:var(--muted);font-size:13px;margin-top:10px;">💡 Vise le % le plus élevé. Si le gardien plonge dans ta direction → arrêté ! · 🔒 1 partie/jour</p>
+        </div>
+        <div id="penLocked" style="display:none;text-align:center;padding:50px 20px;color:var(--muted);">
+            <div style="font-size:50px">🔒</div><h3 style="color:#fff;margin:12px 0;">Déjà joué aujourd'hui !</h3><p>Reviens demain pour une nouvelle tentative.</p>
+        </div>
+    </div></div>
 
     <script>
         const firebaseConfig = {
@@ -735,6 +848,8 @@
                 loadResultats();
                 if (!isAdmin) calculatePointsForCurrentUser();
             });
+
+            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); });
 
             loadRanking();
         }
@@ -1369,6 +1484,8 @@
             var pg = document.getElementById(pageId); if (pg) pg.classList.add('active');
             document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.getAttribute('data-page') === pageId));
             if (pageId === 'accueil') renderAccueil();
+            if (pageId === 'minijeux') renderGameCards();
+            if (pageId === 'classementFun') renderFunBoard();
             window.scrollTo(0, 0);
         }
         function renderAccueil() {
@@ -1432,6 +1549,194 @@
             setLoginMode('joueur');
         }
     
+
+        /* ============ MINI-JEUX ============ */
+        var RD = Math.floor(Date.now() / 86400000);
+        function todayNum(){ var d = new Date(); return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate(); }
+        function shuffle(a){ a = a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+        var QZ = {
+          easy:[
+            {q:"Qui a gagné la Coupe du Monde 2022 ?",o:["France","Argentine","Brésil","Croatie"],a:1},
+            {q:"Combien d'équipes à la Coupe du Monde 2026 ?",o:["32","40","48","64"],a:2},
+            {q:"Quels pays organisent la Coupe du Monde 2026 ?",o:["USA seul","USA + Mexique","USA + Canada + Mexique","Canada + Mexique"],a:2},
+            {q:"Combien de joueurs par équipe sur le terrain ?",o:["9","10","11","12"],a:2},
+            {q:"Quel pays a gagné la Coupe du Monde 2018 ?",o:["Croatie","France","Allemagne","Brésil"],a:1},
+            {q:"De quelle couleur est le carton d'expulsion ?",o:["Jaune","Rouge","Vert","Bleu"],a:1},
+            {q:"Combien de points pour un score exact (poule) ?",o:["10","15","20","25"],a:2}
+          ],
+          medium:[
+            {q:"Record de buts en phase finale de Coupe du Monde ?",o:["Ronaldo (BRA)","Miroslav Klose","Pelé","Just Fontaine"],a:1},
+            {q:"Combien de Coupes du Monde le Brésil a-t-il gagnées ?",o:["3","4","5","6"],a:2},
+            {q:"Qui a gagné le Ballon d'Or 2023 ?",o:["Haaland","Mbappé","Messi","Benzema"],a:2},
+            {q:"Où s'est tenue la Coupe du Monde 2010 ?",o:["Brésil","Afrique du Sud","Allemagne","Russie"],a:1},
+            {q:"Quelle équipe africaine a atteint les demi-finales en 2022 ?",o:["Sénégal","Maroc","Ghana","Cameroun"],a:1},
+            {q:"Durée d'un match hors prolongation (minutes) ?",o:["80","90","100","120"],a:1}
+          ],
+          hard:[
+            {q:"But le plus rapide de l'histoire de la Coupe du Monde ?",o:["Hakan Şükür","Klose","Rooney","Vučinić"],a:0},
+            {q:"En quelle année la 1ère Coupe du Monde ?",o:["1926","1930","1934","1950"],a:1},
+            {q:"Combien de fois l'Italie a-t-elle gagné la Coupe du Monde ?",o:["2","3","4","5"],a:2},
+            {q:"Meilleur buteur (Soulier d'Or) de la Coupe du Monde 2022 ?",o:["Mbappé","Messi","Giroud","Álvarez"],a:0},
+            {q:"Quel gardien a gagné le Gant d'Or en 2022 ?",o:["Courtois","Bounou","Emiliano Martínez","Neuer"],a:2}
+          ]
+        };
+        function dailyQuiz(){
+          var p = [];
+          function take(pool, n, label){ for(var i=0;i<n;i++){ var qq = Object.assign({}, pool[(RD*n + i) % pool.length]); qq.diff = label; p.push(qq); } }
+          take(QZ.easy, 2, 'Simple'); take(QZ.medium, 2, 'Moyen'); take(QZ.hard, 1, 'Difficile');
+          return p;
+        }
+        var FLAGS = [
+          {c:'br',n:'Brésil'},{c:'ar',n:'Argentine'},{c:'fr',n:'France'},{c:'de',n:'Allemagne'},
+          {c:'es',n:'Espagne'},{c:'pt',n:'Portugal'},{c:'it',n:'Italie'},{c:'nl',n:'Pays-Bas'},
+          {c:'be',n:'Belgique'},{c:'hr',n:'Croatie'},{c:'ma',n:'Maroc'},{c:'sn',n:'Sénégal'},
+          {c:'jp',n:'Japon'},{c:'kr',n:'Corée du Sud'},{c:'mx',n:'Mexique'},{c:'us',n:'États-Unis'},
+          {c:'ca',n:'Canada'},{c:'gh',n:'Ghana'},{c:'ci',n:"Côte d'Ivoire"},{c:'dz',n:'Algérie'},
+          {c:'eg',n:'Égypte'},{c:'ch',n:'Suisse'},{c:'no',n:'Norvège'},{c:'co',n:'Colombie'},
+          {c:'uy',n:'Uruguay'},{c:'au',n:'Australie'}
+        ];
+        function dailyFlags(){
+          var picks = [];
+          for(var i=0;i<5;i++){
+            var f = FLAGS[(RD*5 + i) % FLAGS.length];
+            var others = shuffle(FLAGS.filter(function(x){ return x.c !== f.c; })).slice(0,3).map(function(x){ return x.n; });
+            var opts = shuffle([f.n].concat(others));
+            picks.push({ c:f.c, o:opts, a:opts.indexOf(f.n) });
+          }
+          return picks;
+        }
+
+        function playedToday(gameKey){ if(!currentUser) return false; var u = allUsers[currentUser.id]; return !!(u && u.funGames && u.funGames[gameKey] === todayNum()); }
+        function addFunPoints(pts, gameKey){
+          if(!currentUser || isAdmin) return;
+          var uref = db.ref('users/' + currentUser.id);
+          uref.child('funPoints').once('value', function(snap){ var cur = parseInt(snap.val()) || 0; uref.child('funPoints').set(cur + pts); });
+          uref.child('funGames/' + gameKey).set(todayNum());
+        }
+
+        var fmodalBg = document.getElementById('funModalBg'), fmodal = document.getElementById('funModal');
+        function fClose(){ fmodalBg.classList.remove('open'); if(window._ftimer) clearInterval(window._ftimer); }
+        fmodalBg.addEventListener('click', function(e){ if(e.target === fmodalBg) fClose(); });
+        function confettiFx(){ var cols=['#2e8cff','#22c55e','#f5c451','#ef4444','#8b5cf6']; for(var i=0;i<50;i++){ (function(i){ var c=document.createElement('div'); c.className='confx'; c.style.left=Math.random()*100+'vw'; c.style.background=cols[i%cols.length]; var dur=2+Math.random()*1.5; c.style.transition='transform '+dur+'s ease-in, opacity '+dur+'s'; document.body.appendChild(c); requestAnimationFrame(function(){ c.style.transform='translateY(105vh) rotate('+(Math.random()*720)+'deg)'; c.style.opacity='0'; }); setTimeout(function(){ c.remove(); }, dur*1000+100); })(i); } }
+        var SURPRISES=['🎖️ Badge « Sniper » débloqué !','🔥 Bien joué, champion !','🍀 Emoji rare débloqué','⭐ Titre « Crack du jour »','🎩 Rien cette fois… retente demain !','🚀 Quelle perf !'];
+        function fGift(){ var g=document.getElementById('fgift'); if(!g||g.dataset.done) return; g.dataset.done=1; g.textContent='🎉'; g.style.animation='none'; var s=SURPRISES[Math.floor(Math.random()*SURPRISES.length)]; document.getElementById('fgiftout').innerHTML='<div class="sreveal">'+s+'</div>'; confettiFx(); }
+        function fResultHTML(title, score, max, extraBtn){
+          return '<span class="fmclose" onclick="fClose()">&times;</span><h3>'+title+'</h3>'+
+            '<div class="fresult"><div style="color:var(--muted)">Tu as marqué</div><div class="rsc">'+score+' / '+max+'</div>'+
+            '<span class="funtag">+'+score+' points fun · ne compte pas pour les lots</span>'+
+            '<div style="margin-top:16px;color:var(--muted)">🎁 Une surprise… clique !</div>'+
+            '<div class="gift" id="fgift" onclick="fGift()">🎁</div><div id="fgiftout"></div>'+ extraBtn + '</div>';
+        }
+        function fShowResult(title, score, max, gameKey){
+          addFunPoints(score, gameKey);
+          fmodal.innerHTML = fResultHTML(title, score, max, '<button class="gbtn" style="margin-top:16px" onclick="fClose();showPage(\'classementFun\')">Voir le classement fun</button>');
+          if(score >= Math.ceil(max*0.6)) confettiFx();
+        }
+
+        function fTimed(title, data, renderQ, gameKey){
+          fmodalBg.classList.add('open');
+          if(playedToday(gameKey)){ fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>'+title+'</h3><div class="flocked">✓ Déjà joué aujourd\'hui — reviens demain !</div>'; return; }
+          var idx=0, score=0;
+          function run(){
+            var Q=data[idx], tleft=8000;
+            var diffTag = Q.diff ? '<span class="qdiff '+(Q.diff==='Simple'?'gb-easy':Q.diff==='Moyen'?'gb-med':'gb-hard')+'">'+Q.diff+'</span>' : '';
+            fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>'+title+'</h3>'+
+              '<div class="qprog">Question '+(idx+1)+'/'+data.length+' · Score '+score+' · ⏱️ <b id="ftnum">8</b>s '+diffTag+'</div>'+
+              '<div class="ftimer"><i id="ftbar"></i></div>'+renderQ(Q)+'<div id="fopts"></div>';
+            var box=document.getElementById('fopts'), bar=document.getElementById('ftbar'), tnum=document.getElementById('ftnum');
+            Q.o.forEach(function(opt,i){ var b=document.createElement('button'); b.className='qopt'; b.textContent=opt; b.onclick=function(){ pick(i); }; box.appendChild(b); });
+            if(window._ftimer) clearInterval(window._ftimer);
+            window._ftimer=setInterval(function(){ tleft-=100; bar.style.width=(tleft/8000*100)+'%'; tnum.textContent=Math.ceil(tleft/1000); if(tleft<=0){ clearInterval(window._ftimer); pick(-1); } },100);
+            function pick(i){ clearInterval(window._ftimer); var btns=box.querySelectorAll('.qopt'); btns.forEach(function(x){ x.style.pointerEvents='none'; }); if(i===Q.a){ btns[i].classList.add('good'); score++; } else { if(i>=0) btns[i].classList.add('bad'); btns[Q.a].classList.add('good'); } setTimeout(function(){ idx++; if(idx<data.length) run(); else fShowResult(title, score, data.length, gameKey); },850); }
+          }
+          run();
+        }
+        function openQuiz(){ fTimed('Quiz Coupe du Monde 🧠', dailyQuiz(), function(Q){ return '<p style="font-weight:600;font-size:16px;color:#fff;margin-bottom:8px;">'+Q.q+'</p>'; }, 'quiz'); }
+        function openFlags(){ fTimed('Devine le drapeau 🚩', dailyFlags(), function(Q){ return '<div class="bigflag"><img src="https://flagcdn.com/w320/'+Q.c+'.png" alt=""></div>'; }, 'flags'); }
+
+        function openMemory(){
+          fmodalBg.classList.add('open');
+          if(playedToday('memory')){ fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>Memory drapeaux 🃏</h3><div class="flocked">✓ Déjà joué aujourd\'hui — reviens demain !</div>'; return; }
+          var codes=[]; for(var i=0;i<4;i++){ codes.push(FLAGS[(RD*4 + i) % FLAGS.length].c); }
+          var deck=shuffle(codes.concat(codes)); var flipped=[], matched=0, mistakes=0, lock=false;
+          fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>Memory drapeaux 🃏</h3><p style="color:var(--muted);font-size:13px;">Retrouve les 4 paires !</p><div class="memgrid" id="fmem"></div>';
+          var grid=document.getElementById('fmem');
+          deck.forEach(function(c){ var el=document.createElement('div'); el.className='memcard'; el.innerHTML='<div class="mback">?</div><div class="mface"><img src="https://flagcdn.com/w160/'+c+'.png"></div>'; el.onclick=function(){ flip(el,c); }; grid.appendChild(el); });
+          function flip(el,c){ if(lock||el.classList.contains('open')||el.classList.contains('done')) return; el.classList.add('open'); flipped.push({el:el,c:c}); if(flipped.length===2){ lock=true; var a=flipped[0], b=flipped[1]; if(a.c===b.c){ a.el.classList.add('done'); b.el.classList.add('done'); matched++; flipped=[]; lock=false; if(matched===codes.length){ var sc=Math.max(1,5-Math.floor(mistakes/2)); setTimeout(function(){ fShowResult('Memory drapeaux 🃏', sc, 5, 'memory'); },500); } } else { mistakes++; setTimeout(function(){ a.el.classList.remove('open'); b.el.classList.remove('open'); flipped=[]; lock=false; },750); } } }
+        }
+
+        /* ----- Pénalty ----- */
+        var PEN_BALL='<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" stroke-width="2"/><path d="M50 22 l15 11 -6 18 -18 0 -6-18z" fill="#1c1c1c"/></svg>';
+        function PEN_KEEPER(){ return '<svg viewBox="0 0 120 160"><ellipse cx="60" cy="150" rx="32" ry="6" fill="rgba(0,0,0,.35)"/><rect x="46" y="104" width="10" height="40" rx="4" fill="#1f3570"/><rect x="64" y="104" width="10" height="40" rx="4" fill="#1f3570"/><rect x="40" y="56" width="40" height="56" rx="14" fill="#ffe14d"/><path d="M40 70 q-20 -4 -28 14 l10 6 q10 -12 18 -8z" fill="#ffe14d"/><path d="M80 70 q20 -4 28 14 l-10 6 q-10 -12 -18 -8z" fill="#ffe14d"/><circle cx="60" cy="34" r="15" fill="#f3cda3"/></svg>'; }
+        var penShot=0, penGoals=0, penBusy=false, penRes=[], penPcts=[75,50,75], penInited=false;
+        var penOv=document.getElementById('penOv');
+        function openPenalty(){
+          if(playedToday('penalty')){ penOv.classList.add('open'); document.getElementById('penGameWrap').style.display='none'; document.getElementById('penLocked').style.display='block'; return; }
+          penOv.classList.add('open'); document.getElementById('penGameWrap').style.display='block'; document.getElementById('penLocked').style.display='none';
+          if(!penInited){ document.getElementById('penKeeper').innerHTML=PEN_KEEPER(); document.getElementById('penBall').innerHTML=PEN_BALL; penInited=true; }
+          penNew();
+        }
+        function closePenalty(){ penOv.classList.remove('open'); }
+        function penDots(){ var h=''; for(var i=0;i<5;i++){ var c=penRes[i]===true?'goal':penRes[i]===false?'miss':''; h+='<span class="'+c+'"></span>'; } document.getElementById('penDots').innerHTML=h; }
+        function penPercents(){ var d=Math.floor(Math.random()*3); penPcts=[0,0,0]; for(var i=0;i<3;i++){ penPcts[i]=(i===d)?25:(60+Math.floor(Math.random()*3)*5); } var z=document.querySelectorAll('#penField .pen-zone'); for(var i=0;i<3;i++){ z[i].querySelector('span').textContent=penPcts[i]+'%'; z[i].classList.remove('dim'); } }
+        var pzx=function(i){ return [30,50,70][i]; };
+        function penShoot(zone){
+          if(penBusy || penShot>=5) return; penBusy=true;
+          var z=document.querySelectorAll('#penField .pen-zone'); z.forEach(function(e){ e.classList.add('dim'); });
+          var pct=penPcts[zone], scored=Math.random()*100 < pct;
+          var kZone = scored ? [0,1,2].filter(function(x){ return x!==zone; })[Math.floor(Math.random()*2)] : zone; // ARRÊT => gardien plonge dans TA direction
+          var ball=document.getElementById('penBall'), keeper=document.getElementById('penKeeper'), banner=document.getElementById('penBanner');
+          ball.style.left=pzx(zone)+'%'; ball.style.top='40%';
+          keeper.style.left=pzx(kZone)+'%'; keeper.style.transform='translateX(-50%) rotate('+(kZone===0?-22:kZone===2?22:0)+'deg)';
+          setTimeout(function(){
+            if(scored){ penGoals++; banner.textContent='BUT ! ⚽'; } else { banner.textContent='ARRÊTÉ 🧤'; }
+            banner.classList.add('show'); penRes[penShot]=scored; penDots(); penShot++;
+            setTimeout(function(){
+              banner.classList.remove('show');
+              ball.style.transition='none'; ball.style.left='50%'; ball.style.top='74%'; keeper.style.transition='none'; keeper.style.left='50%'; keeper.style.transform='translateX(-50%)';
+              setTimeout(function(){ ball.style.transition=''; keeper.style.transition=''; },60);
+              if(penShot<5){ penBusy=false; penPercents(); document.getElementById('penAction').textContent='Tir '+(penShot+1)+'/5 — clique sur une cible'; }
+              else { penEnd(); }
+            },1000);
+          },440);
+        }
+        function penEnd(){
+          document.querySelectorAll('#penField .pen-zone').forEach(function(e){ e.classList.add('dim'); });
+          document.getElementById('penAction').textContent='🎉 '+penGoals+'/5 — +'+penGoals+' points fun ! (reviens demain)';
+          addFunPoints(penGoals, 'penalty');
+          if(penGoals>=3) confettiFx();
+          setTimeout(function(){
+            fmodalBg.classList.add('open');
+            fmodal.innerHTML = fResultHTML('Défi Pénalty ⚽', penGoals, 5, '<button class="gbtn" style="margin-top:16px" onclick="fClose();closePenalty();showPage(\'classementFun\')">Voir le classement fun</button>');
+          },700);
+        }
+        function penNew(){ penShot=0; penGoals=0; penBusy=false; penRes=[]; penDots(); penPercents(); document.getElementById('penAction').textContent='Clique sur une cible pour tirer'; }
+
+        /* ----- Cartes jeux + classement fun ----- */
+        function renderGameCards(){
+          var c=document.getElementById('gamesGrid'); if(!c) return;
+          var defs=[
+            {k:'penalty',ic:'⚽',t:'Défi Pénalty',b:'gb-med',bl:'Adresse',d:'Vise la bonne zone, trompe le gardien. 5 tirs.',fn:'openPenalty'},
+            {k:'quiz',ic:'🧠',t:'Quiz Coupe du Monde',b:'gb-hard',bl:'Difficile · ⏱️',d:'5 questions (simple → difficile), 8s chacune. Différentes chaque jour.',fn:'openQuiz'},
+            {k:'flags',ic:'🚩',t:'Devine le drapeau',b:'gb-med',bl:'Moyen · ⏱️',d:'Reconnais le pays, 8s par manche. Change chaque jour.',fn:'openFlags'},
+            {k:'memory',ic:'🃏',t:'Memory drapeaux',b:'gb-easy',bl:'Mémoire',d:'Retrouve les paires de drapeaux.',fn:'openMemory'}
+          ];
+          c.innerHTML=defs.map(function(g){
+            var locked=playedToday(g.k);
+            return '<div class="game-card"><div class="gico">'+g.ic+'</div><h4>'+g.t+'</h4><span class="gbadge '+g.b+'">'+g.bl+'</span><p>'+g.d+'</p>'+
+              '<div class="gfoot"><span class="greward">🎮 max +5 · 🎁</span><button class="gbtn" '+(locked?'disabled':'')+' onclick="'+g.fn+'()">'+(locked?'✓ Joué':'Jouer')+'</button></div></div>';
+          }).join('');
+        }
+        function renderFunBoard(){
+          var box=document.getElementById('funBoard'); if(!box) return;
+          var arr=Object.keys(allUsers||{}).filter(function(id){ var n=allUsers[id]&&allUsers[id].name; return n && String(n).toLowerCase()!=='undefined' && id!=='__admin__'; }).map(function(id){ return { id:id, name:allUsers[id].name, fp:parseInt(allUsers[id].funPoints)||0 }; });
+          arr=arr.filter(function(r){ return r.fp>0; });
+          arr.sort(function(a,b){ return b.fp-a.fp; });
+          if(arr.length===0){ box.innerHTML='<div class="flocked">Personne n\'a encore de points fun — sois le premier, va jouer ! 🎮</div>'; return; }
+          box.innerHTML=arr.map(function(r,i){ var me=currentUser&&r.id===currentUser.id; var md=i===0?'fb1':i===1?'fb2':i===2?'fb3':'fbx'; return '<div class="fbrow '+(me?'me':'')+'"><div class="fbmed '+md+'">'+(i+1)+'</div><div class="fbname">'+r.name+'</div><div class="fbpts">'+r.fp+' 🎮</div></div>'; }).join('');
+        }
+
         // ===== Bulles décoratives =====
         (function(){
             const w=document.getElementById('bubbles');
