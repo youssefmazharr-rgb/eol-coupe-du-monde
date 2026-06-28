@@ -485,6 +485,12 @@
                 </div>
 
                 <div class="admin-section">
+                    <h3>🕵️ Surveillance des pronostics</h3>
+                    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Détecte tout pronostic <b>enregistré APRÈS le coup d'envoi</b> (= tentative de contournement du verrou). Le serveur bloque déjà ça — ceci est ton filet de sécurité, avec l'heure exacte (horodatage serveur, infalsifiable).</p>
+                    <div id="pronoWatch"></div>
+                </div>
+
+                <div class="admin-section">
                     <h3>⚽ Ajouter Scoreur</h3>
                     <div class="form-grid">
                         <div class="form-group">
@@ -834,7 +840,7 @@
                 if (!isAdmin) calculatePointsForCurrentUser();
             });
 
-            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); renderFunWatch(); });
+            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); renderFunWatch(); renderPronoWatch(); });
 
             loadRanking();
         }
@@ -1164,6 +1170,8 @@
             }
 
             db.ref('pronostics/' + currentUser.id + '/' + id).set(s1 + '-' + s2).then(() => {
+                // Horodatage SERVEUR (anti-triche) : l'heure est posée par Firebase, infalsifiable côté client
+                db.ref('users/' + currentUser.id + '/pronoTimes/' + id).set(firebase.database.ServerValue.TIMESTAMP);
                 alert('✓ Enregistré!');
             }).catch(() => {
                 alert('⛔ Enregistrement refusé : ce match est fermé (coup d\'envoi passé).');
@@ -1457,7 +1465,7 @@
             if (pageId === 'accueil') renderAccueil();
             if (pageId === 'minijeux') renderGameCards();
             if (pageId === 'classementFun') renderFunBoard();
-            if (pageId === 'admin') renderFunWatch();
+            if (pageId === 'admin') { renderFunWatch(); renderPronoWatch(); }
             window.scrollTo(0, 0);
         }
         function renderAccueil() {
@@ -1732,6 +1740,32 @@
           if(rows.length===0){ box.innerHTML='<div style="color:var(--green);font-weight:600;padding:10px;">✅ Personne n\'a joué deux fois le même jour. Tout est clean !</div>'; return; }
           rows.sort(function(a,b){ return b.n-a.n; });
           box.innerHTML=rows.map(function(r){ return '<div class="fbrow"><span style="font-size:18px">⚠️</span><div class="fbname">'+r.name+'</div><div style="color:var(--muted);font-size:13px">'+gameLabel(r.g)+' · '+fmtDay(r.day)+'</div><div class="fbpts" style="color:var(--red)">'+r.n+'×</div></div>'; }).join('');
+        }
+        // Heure de coup d'envoi (UTC ms) — même formule que initMatchTimes (Maroc UTC+1)
+        function matchKickoffMs(matchId){
+          var m = allMatches.find(function(x){ return x.id == matchId; });
+          if(!m) return null;
+          var p = m.date.split('/'), t = m.time.split(':');
+          return Date.UTC(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]), parseInt(t[0])-1, parseInt(t[1]), 0);
+        }
+        function fmtDateTime(ms){
+          try { return new Date(ms).toLocaleString('fr-FR', {timeZone:'Africa/Casablanca', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); }
+          catch(e){ var d=new Date(ms+3600000); return ('0'+d.getUTCDate()).slice(-2)+'/'+('0'+(d.getUTCMonth()+1)).slice(-2)+' '+('0'+d.getUTCHours()).slice(-2)+'h'+('0'+d.getUTCMinutes()).slice(-2); }
+        }
+        function renderPronoWatch(){
+          var box=document.getElementById('pronoWatch'); if(!box) return;
+          var rows=[];
+          Object.keys(allUsers||{}).forEach(function(id){
+            var u=allUsers[id]; if(!u||!u.pronoTimes) return;
+            Object.keys(u.pronoTimes).forEach(function(mid){
+              var pt=parseInt(u.pronoTimes[mid]); if(!pt) return;
+              var ko=matchKickoffMs(mid); if(ko===null) return;
+              if(pt > ko){ rows.push({name:u.name||id, mid:mid, pt:pt, ko:ko}); }
+            });
+          });
+          if(rows.length===0){ box.innerHTML='<div style="color:var(--green);font-weight:600;padding:10px;">✅ Aucun pronostic modifié après le coup d\'envoi. Tout est clean !</div>'; return; }
+          rows.sort(function(a,b){ return b.pt-a.pt; });
+          box.innerHTML=rows.map(function(r){ return '<div class="fbrow"><span style="font-size:18px">⚠️</span><div class="fbname">'+r.name+'</div><div style="color:var(--muted);font-size:13px">Match '+r.mid+' · modifié <b style="color:var(--red)">'+fmtDateTime(r.pt)+'</b> · coup d\'envoi '+fmtDateTime(r.ko)+'</div><div class="fbpts" style="color:var(--red)">SUSPECT</div></div>'; }).join('');
         }
 
         // ===== Bulles décoratives =====
