@@ -353,7 +353,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Match</label>
-                            <select id="matchSelect">
+                            <select id="matchSelect" onchange="onMatchSelectChange()">
                                 <option value="">-- Sélectionner --</option>
                             </select>
                         </div>
@@ -365,7 +365,16 @@
                             <label>Score Équipe 2</label>
                             <input type="number" id="score2" placeholder="0" min="0">
                         </div>
+                        <div class="form-group" id="qualifiedWrap" style="display:none;">
+                            <label>🏆 Équipe qualifiée (phase finale)</label>
+                            <select id="qualifiedTeam">
+                                <option value="">-- Qui se qualifie ? --</option>
+                                <option value="1">Équipe 1</option>
+                                <option value="2">Équipe 2</option>
+                            </select>
+                        </div>
                     </div>
+                    <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px;">💡 Phase finale : entre le score (fin de prolongation) <b>et</b> l'équipe qualifiée → le +5 ira aux joueurs qui ont misé sur elle.</p>
                     <button class="btn-primary" onclick="recordResult()">Enregistrer Score</button>
                 </div>
 
@@ -545,6 +554,7 @@
         let goals = {};
         let allUsers = {};
         let allPronostics = {};
+        let qualified = {};
         let serverTime = null;
 
         function showAlert(message, type) {
@@ -691,6 +701,12 @@
                 }
             });
 
+            db.ref('qualified').on('value', snapshot => {
+                qualified = snapshot.val() || {};
+                loadResultats();
+                if (!isAdmin) calculatePointsForCurrentUser();
+            });
+
             loadRanking();
         }
 
@@ -715,6 +731,16 @@
             return { points: 0, label: '✗ Faux (0)', cls: 'prono-faux' };
         }
 
+        // +5 si le joueur a misé sur l'équipe qualifiée (phase finale uniquement). Un prono nul ne désigne personne.
+        function qualifiedBonus(matchId, u1, u2, qualMap) {
+            if (parseInt(matchId) < 53) return 0;
+            var q = qualMap ? qualMap[matchId] : null;
+            if (q === undefined || q === null || q === '') return 0;
+            if (u1 === u2) return 0; // prono nul -> pas de +5
+            var betted = (u1 > u2) ? '1' : '2';
+            return (String(betted) === String(q)) ? 5 : 0;
+        }
+
         function calculatePointsForCurrentUser() {
             let totalPoints = 0;
 
@@ -723,6 +749,7 @@
                     const [u1, u2] = myPronostics[matchId].split('-').map(Number);
                     const [r1, r2] = results[matchId].split('-').map(Number);
                     totalPoints += getPredictionResult(u1, u2, r1, r2).points;
+                    totalPoints += qualifiedBonus(matchId, u1, u2, qualified);
                 }
             }
 
@@ -739,26 +766,29 @@
                 const usersData = usersSnapshot.val() || {};
                 db.ref('pronostics').once('value', (pronosticsSnapshot) => {
                     const allPronostics = pronosticsSnapshot.val() || {};
-                    const results_val = results;
+                    db.ref('results').once('value', (resSnap) => {
+                        const results_val = resSnap.val() || {};
+                        db.ref('qualified').once('value', (qualSnap) => {
+                            const qualified_val = qualSnap.val() || {};
+                            const allUserIds = new Set([...Object.keys(usersData), ...Object.keys(allPronostics)]);
 
-                    // Recalcule pour TOUS les comptes (même ceux sans pronostics, pour garder leur bonus)
-                    const allUserIds = new Set([...Object.keys(usersData), ...Object.keys(allPronostics)]);
+                            allUserIds.forEach(userId => {
+                                let totalPoints = 0;
+                                const userPronostics = allPronostics[userId] || {};
 
-                    allUserIds.forEach(userId => {
-                        let totalPoints = 0;
-                        const userPronostics = allPronostics[userId] || {};
+                                for (let matchId in userPronostics) {
+                                    if (results_val[matchId]) {
+                                        const [u1, u2] = userPronostics[matchId].split('-').map(Number);
+                                        const [r1, r2] = results_val[matchId].split('-').map(Number);
+                                        totalPoints += getPredictionResult(u1, u2, r1, r2).points;
+                                        totalPoints += qualifiedBonus(matchId, u1, u2, qualified_val);
+                                    }
+                                }
 
-                        for (let matchId in userPronostics) {
-                            if (results_val[matchId]) {
-                                const [u1, u2] = userPronostics[matchId].split('-').map(Number);
-                                const [r1, r2] = results_val[matchId].split('-').map(Number);
-                                totalPoints += getPredictionResult(u1, u2, r1, r2).points;
-                            }
-                        }
-
-                        // Conserver le bonus admin (jamais écrasé par le recalcul)
-                        const bonus = parseInt(usersData[userId] && usersData[userId].bonus) || 0;
-                        db.ref('users/' + userId + '/points').set(totalPoints + bonus);
+                                const bonus = parseInt(usersData[userId] && usersData[userId].bonus) || 0;
+                                db.ref('users/' + userId + '/points').set(totalPoints + bonus);
+                            });
+                        });
                     });
                 });
             });
@@ -911,6 +941,7 @@
                         const userProno = allPronostics[userId][match.id];
                         const [pronoTeam1, pronoTeam2] = userProno.split('-').map(Number);
                         const res = getPredictionResult(pronoTeam1, pronoTeam2, parseInt(s1), parseInt(s2));
+                        const qb = qualifiedBonus(match.id, pronoTeam1, pronoTeam2, qualified);
 
                         if (res.points === 20) nExact++;
                         else if (res.points === 15) nEcart++;
@@ -921,7 +952,7 @@
                             name: userName,
                             prono: userProno,
                             statusClass: res.cls,
-                            statusText: res.label
+                            statusText: res.label + (qb > 0 ? ' 🏆+5' : '')
                         });
                     }
                 }
@@ -964,6 +995,9 @@
                         </div>`;
                 }
 
+                const qTeam = qualified[match.id];
+                const qName = qTeam === '1' ? match.team1.split(' ').slice(1).join(' ') : (qTeam === '2' ? match.team2.split(' ').slice(1).join(' ') : null);
+
                 return `
                     <div class="result-card">
                         <div class="result-score">
@@ -971,6 +1005,7 @@
                             <div style="font-size: 32px; font-weight: 700; color: #fff; min-width: 100px; text-align: center;">${s1} - ${s2}</div>
                             <div class="result-teams">${match.team2}</div>
                         </div>
+                        ${qName ? `<div style="text-align:center;margin:8px 0;"><span style="background:rgba(245,196,81,.15);color:#f5d98a;padding:5px 14px;border-radius:20px;font-weight:700;font-size:13px;">🏆 Qualifié : ${qName}</span></div>` : ''}
                         ${goalsHTML ? `<div class="result-goals">${goalsHTML}</div>` : ''}
                         ${summaryHTML}
                         ${pronosticsBlock}
@@ -1121,6 +1156,22 @@
             });
         }
 
+        function onMatchSelectChange() {
+            var id = document.getElementById('matchSelect').value;
+            var wrap = document.getElementById('qualifiedWrap');
+            var sel = document.getElementById('qualifiedTeam');
+            var match = allMatches.find(m => m.id == id);
+            if (match && match.id >= 53) {
+                wrap.style.display = 'block';
+                sel.options[1].text = match.team1.split(' ').slice(1).join(' ');
+                sel.options[2].text = match.team2.split(' ').slice(1).join(' ');
+                sel.value = (qualified[id] !== undefined && qualified[id] !== null) ? String(qualified[id]) : '';
+            } else {
+                wrap.style.display = 'none';
+                sel.value = '';
+            }
+        }
+
         function recordResult() {
             const id = document.getElementById('matchSelect').value;
             const s1 = document.getElementById('score1').value;
@@ -1131,17 +1182,30 @@
                 return;
             }
 
-            db.ref('results/' + id).set(s1 + '-' + s2).then(() => {
-                recalculateAllPoints();
-                
-                document.getElementById('successMsg').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('successMsg').style.display = 'none';
-                }, 3000);
+            const match = allMatches.find(m => m.id == id);
+            const isKnockout = match && match.id >= 53;
+            const qual = document.getElementById('qualifiedTeam').value;
 
-                document.getElementById('matchSelect').value = '';
-                document.getElementById('score1').value = '';
-                document.getElementById('score2').value = '';
+            if (isKnockout && !qual) {
+                if (!confirm("⚠️ Tu n'as pas indiqué l'équipe qualifiée. Le bonus +5 ne sera pas attribué. Continuer quand même ?")) return;
+            }
+
+            db.ref('results/' + id).set(s1 + '-' + s2).then(() => {
+                const finish = function() {
+                    recalculateAllPoints();
+                    document.getElementById('successMsg').style.display = 'block';
+                    setTimeout(() => { document.getElementById('successMsg').style.display = 'none'; }, 3000);
+                    document.getElementById('matchSelect').value = '';
+                    document.getElementById('score1').value = '';
+                    document.getElementById('score2').value = '';
+                    document.getElementById('qualifiedTeam').value = '';
+                    document.getElementById('qualifiedWrap').style.display = 'none';
+                };
+                if (isKnockout && qual) {
+                    db.ref('qualified/' + id).set(qual).then(finish);
+                } else {
+                    finish();
+                }
             });
         }
 
