@@ -13,8 +13,8 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);min-height:100vh;background:radial-gradient(900px 600px at 80% -10%,#16306a 0%,transparent 60%),radial-gradient(700px 500px at 0% 100%,#1a2a66 0%,transparent 55%),linear-gradient(160deg,var(--bg),var(--bg2));}
         .bubbles{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-        .bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.4),rgba(120,150,255,.15) 45%,rgba(60,80,200,.04) 70%);box-shadow:inset 0 0 20px rgba(255,255,255,.2),0 8px 30px rgba(40,80,200,.2);animation:flo linear infinite;}
-        @keyframes flo{0%{transform:translateY(20px);opacity:0}10%{opacity:.8}50%{transform:translateY(-50px) translateX(20px)}90%{opacity:.6}100%{transform:translateY(-110px);opacity:0}}
+        .bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(130,165,255,.22) 45%,rgba(60,80,200,.06) 70%);box-shadow:inset 0 0 22px rgba(255,255,255,.3),0 10px 34px rgba(40,90,220,.3);animation:flo linear infinite;}
+        @keyframes flo{0%{transform:translateY(20px);opacity:0}10%{opacity:.95}50%{transform:translateY(-50px) translateX(20px)}90%{opacity:.8}100%{transform:translateY(-110px);opacity:0}}
         .login-container{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative;z-index:1;}
         .login-box{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:46px 38px;backdrop-filter:blur(14px);box-shadow:0 30px 80px rgba(0,0,0,.5);max-width:450px;width:100%;}
         .login-header{text-align:center;margin-bottom:36px;}
@@ -50,8 +50,11 @@
         .page{display:none;}
         .page.active{display:block;animation:fade .4s ease;}
         @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .section-title{font-size:26px;font-weight:800;margin-bottom:26px;color:#fff;}
-        .matches-container{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));}
+        .section-title{font-size:26px;font-weight:800;margin-bottom:10px;color:#fff;}
+        .welcome-banner{font-size:16px;color:#cbd8f5;margin-bottom:24px;background:rgba(46,140,255,.10);border:1px solid rgba(46,140,255,.25);border-radius:12px;padding:12px 18px;font-weight:600;}
+        .welcome-banner b{color:#fff;}
+        .matches-container{display:grid;gap:18px;grid-template-columns:1fr;}
+        @media(min-width:1100px){.matches-container{grid-template-columns:1fr 1fr;}}
         .match-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;backdrop-filter:blur(10px);}
         .match-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin-bottom:18px;}
         .team{display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface2);border-radius:10px;}
@@ -219,6 +222,7 @@
         <div class="container">
             <div id="pronostics" class="page active">
                 <h2 class="section-title">🎯 Pronostics</h2>
+                <div class="welcome-banner">👋 Bonjour <b id="welcomeName"></b>, fais tes pronos et tente de gagner ! 🏆</div>
                 <div class="bareme-card">
                     <div class="bareme-title">📋 Comment marquer des points</div>
                     <div class="bareme-grid">
@@ -560,6 +564,7 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userName').textContent = fullName;
+            var _wn = document.getElementById('welcomeName'); if(_wn){ _wn.textContent = (fullName||'').split(' ')[0] || fullName; }
 
             if (isAdmin) {
                 document.getElementById('adminBtn').style.display = 'block';
@@ -694,7 +699,7 @@
             if (matchGoals['1']) {
                 const goalsArray = Object.values(matchGoals['1']).sort((a, b) => a.time - b.time);
                 if (goalsArray.length > 0) {
-                    goalsHTML += `<div class="team-goals-section"><div class="team-goals-title">${match.team1.substring(2)}:</div>`;
+                    goalsHTML += `<div class="team-goals-section"><div class="team-goals-title">${match.team1.split(' ').slice(1).join(' ')}:</div>`;
                     goalsArray.forEach(goal => {
                         goalsHTML += `<div class="goal-item">⚽ ${goal.name} (${goal.time}')</div>`;
                     });
@@ -705,7 +710,7 @@
             if (matchGoals['2']) {
                 const goalsArray = Object.values(matchGoals['2']).sort((a, b) => a.time - b.time);
                 if (goalsArray.length > 0) {
-                    goalsHTML += `<div class="team-goals-section"><div class="team-goals-title">${match.team2.substring(2)}:</div>`;
+                    goalsHTML += `<div class="team-goals-section"><div class="team-goals-title">${match.team2.split(' ').slice(1).join(' ')}:</div>`;
                     goalsArray.forEach(goal => {
                         goalsHTML += `<div class="goal-item">⚽ ${goal.name} (${goal.time}')</div>`;
                     });
@@ -753,7 +758,7 @@
                                 <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">${match.group.includes('/') ? match.group + ' de finale' : 'Groupe ' + match.group}</div>
                                 <div class="team">
                                     <span class="team-flag">${match.team1.split(' ')[0]}</span>
-                                    <span>${match.team1.substring(2)}</span>
+                                    <span>${match.team1.split(' ').slice(1).join(' ')}</span>
                                 </div>
                             </div>
                             <div style="text-align: center;">
@@ -768,7 +773,7 @@
                                 <div style="color: #6b7280; font-size: 12px; margin-bottom: 6px;">-</div>
                                 <div class="team">
                                     <span class="team-flag">${match.team2.split(' ')[0]}</span>
-                                    <span>${match.team2.substring(2)}</span>
+                                    <span>${match.team2.split(' ').slice(1).join(' ')}</span>
                                 </div>
                             </div>
                         </div>
@@ -943,7 +948,7 @@
             const select = document.getElementById('matchSelect');
             const detailsSelect = document.getElementById('detailsMatchSelect');
             const adminSelect = document.getElementById('adminMatchSelect');
-            const matchOptions = allMatches.map(m => `<option value="${m.id}">${m.team1.substring(2)} vs ${m.team2.substring(2)}</option>`).join('');
+            const matchOptions = allMatches.map(m => `<option value="${m.id}">${m.team1.split(' ').slice(1).join(' ')} vs ${m.team2.split(' ').slice(1).join(' ')}</option>`).join('');
             
             select.innerHTML = '<option value="">-- Sélectionner --</option>' + matchOptions;
             detailsSelect.innerHTML = '<option value="">-- Sélectionner --</option>' + matchOptions;
@@ -1218,7 +1223,7 @@
         (function(){
             const w=document.getElementById('bubbles');
             if(!w) return;
-            for(let i=0;i<12;i++){const b=document.createElement('div');b.className='bubble';const s=20+Math.random()*70;
+            for(let i=0;i<16;i++){const b=document.createElement('div');b.className='bubble';const s=20+Math.random()*70;
                 b.style.width=b.style.height=s+'px';b.style.left=Math.random()*100+'%';b.style.bottom=-(Math.random()*200)+'px';
                 b.style.animationDuration=(10+Math.random()*14)+'s';b.style.animationDelay=(Math.random()*8)+'s';w.appendChild(b);}
         })();
