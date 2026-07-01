@@ -269,6 +269,33 @@
         @media(max-width:600px){.lots-row{grid-template-columns:1fr;}}
         .lot{text-align:center;padding:16px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);}
         .lot .le{font-size:32px;}.lot b{display:block;margin-top:6px;color:#fff;font-size:14px;}.lot span{font-size:12px;color:var(--muted);}
+        /* ==== Bombes & Ballons + Vrai/Faux ==== */
+        .bb-hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;font-size:15px;}
+        .bb-hud .lives{color:var(--red);letter-spacing:2px;}
+        .bb-hud .sc{color:var(--gold);}
+        .bb-hud .tm{color:#8fc1ff;}
+        .bb-bar{height:7px;background:var(--surface2);border-radius:20px;overflow:hidden;margin-bottom:10px;}
+        .bb-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));transition:width .1s linear;}
+        .bb-field{position:relative;width:100%;aspect-ratio:1/1;max-height:56vh;border-radius:16px;border:1px solid var(--border);background:radial-gradient(circle at 50% 40%,#123a5e,#0a1f38);overflow:hidden;touch-action:manipulation;}
+        .bb-item{position:absolute;font-size:42px;transform:translate(-50%,-50%) scale(0);cursor:pointer;user-select:none;-webkit-user-select:none;line-height:1;transition:transform .12s ease-out;will-change:transform;}
+        .bb-item.in{transform:translate(-50%,-50%) scale(1);}
+        .bb-item.out{transform:translate(-50%,-50%) scale(0);}
+        .bb-item.pop{animation:bbpp .25s forwards;}
+        @keyframes bbpp{0%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-50%) scale(1.6);opacity:0}}
+        .bb-start{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:20px;background:rgba(4,8,20,.55);cursor:pointer;z-index:4;}
+        .bb-start .big{font-size:48px;margin-bottom:6px;}
+        .bb-start .sm{color:#bfe;font-size:14px;line-height:1.6;}
+        .bb-flash{position:absolute;inset:0;background:var(--red);opacity:0;pointer-events:none;z-index:2;}
+        .bb-flash.hit{animation:bbfl .4s;}
+        @keyframes bbfl{0%{opacity:.5}100%{opacity:0}}
+        .bb-plus{position:absolute;font-weight:800;font-size:22px;pointer-events:none;z-index:5;animation:bbfly .7s forwards;}
+        @keyframes bbfly{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-140%)}}
+        .vf-stmt{font-size:17px;font-weight:600;color:#fff;text-align:center;padding:20px 10px;line-height:1.5;}
+        .vf-btns{display:flex;gap:12px;}
+        .vf-btns .gbtn{flex:1;margin-top:0;font-size:16px;padding:16px;}
+        .vf-true{background:linear-gradient(135deg,#1fa85a,#27c06a);}
+        .vf-false{background:linear-gradient(135deg,#c0392b,#e74c3c);}
+        .vf-win{color:var(--green);}.vf-lose{color:var(--red);}
     </style>
 </head>
 <body>
@@ -374,30 +401,9 @@
 
             <div id="pronostics" class="page">
                 <h2 class="section-title">🎯 Pronostics</h2>
-                <div class="bareme-card">
-                    <div class="bareme-title">📋 Comment marquer des points</div>
-                    <div class="bareme-grid">
-                        <div class="bareme-item exact">
-                            <div class="bareme-head"><span>🎯 Score exact</span><span class="bareme-pts">20 pts</span></div>
-                            <div class="bareme-ex">Tu pronostiques 2-1, le match finit 2-1</div>
-                        </div>
-                        <div class="bareme-item ecart">
-                            <div class="bareme-head"><span>📊 Bon écart de buts</span><span class="bareme-pts">15 pts</span></div>
-                            <div class="bareme-ex">Tu pronostiques 2-0, le match finit 3-1 (2 buts d'écart des deux côtés)</div>
-                        </div>
-                        <div class="bareme-item vainqueur">
-                            <div class="bareme-head"><span>✅ Bon vainqueur</span><span class="bareme-pts">10 pts</span></div>
-                            <div class="bareme-ex">Tu pronostiques Canada 1-0, le match finit Canada 3-0</div>
-                        </div>
-                        <div class="bareme-item faux">
-                            <div class="bareme-head"><span>❌ Mauvais résultat</span><span class="bareme-pts">0 pt</span></div>
-                            <div class="bareme-ex">Le vainqueur que tu as prédit n'est pas le bon</div>
-                        </div>
-                    </div>
-                    <div class="bareme-note">
-                        💡 <strong>Le « bon écart », c'est quoi ?</strong> Ce n'est pas « un score proche » : il faut prévoir le <strong>même nombre de buts d'écart</strong> que le vrai résultat.
-                        Exemple : le match finit <strong>5-0</strong> (5 buts d'écart). Si tu as mis <strong>4-0</strong> (4 buts d'écart), ce n'est pas le bon écart → tu as quand même trouvé le vainqueur, donc <strong>10 points</strong>. Pour avoir 15 points, il aurait fallu un score à 5 buts d'écart (ex. 6-1, 7-2…).
-                    </div>
+                <div class="welcome-banner">
+                    🏆 On est en <strong>phase finale — 1/16 de finale</strong> ! Pronostique le score (fin du temps réglementaire ou prolongation). Un <strong>bonus +5</strong> est en jeu si tu trouves l'équipe qualifiée.
+                    <br>👉 <strong>Consulte la page <a href="#" onclick="showPage('regles');return false;" style="color:#8fc1ff;text-decoration:underline;">Règles</a> pour bien comprendre le barème et les 1/16.</strong>
                 </div>
                 <div class="sub-tabs">
                     <button class="sub-tab-btn active" id="subTabActuels" onclick="showSubTab('actuels')">⏳ Actuels</button>
@@ -497,6 +503,12 @@
                     </div>
                     <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px;">💡 Phase finale : entre le score (fin de prolongation) <b>et</b> l'équipe qualifiée → le +5 ira aux joueurs qui ont misé sur elle.</p>
                     <button class="btn-primary" onclick="recordResult()">Enregistrer Score</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>👁️ Surveillance des mini-jeux</h3>
+                    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Liste les joueurs qui ont joué <b>plus d'une fois le même jour</b> à un mini-jeu. (Les points fun ne donnent aucun lot — c'est juste pour garder un œil 😏.) Mise à jour automatique.</p>
+                    <div id="funWatch"></div>
                 </div>
 
                 <div class="admin-section">
@@ -849,7 +861,7 @@
                 if (!isAdmin) calculatePointsForCurrentUser();
             });
 
-            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); });
+            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); renderFunWatch(); });
 
             loadRanking();
         }
@@ -886,23 +898,9 @@
         }
 
         function calculatePointsForCurrentUser() {
-            let totalPoints = 0;
-
-            for (let matchId in myPronostics) {
-                if (results[matchId]) {
-                    const [u1, u2] = myPronostics[matchId].split('-').map(Number);
-                    const [r1, r2] = results[matchId].split('-').map(Number);
-                    totalPoints += getPredictionResult(u1, u2, r1, r2).points;
-                    totalPoints += qualifiedBonus(matchId, u1, u2, qualified);
-                }
-            }
-
-            // Ajouter le bonus admin (champ séparé, jamais écrasé par le recalcul)
-            db.ref('users/' + currentUser.id).once('value', snap => {
-                const v = snap.val() || {};
-                const bonus = parseInt(v.bonus) || 0;
-                db.ref('users/' + currentUser.id + '/points').set(totalPoints + bonus);
-            });
+            // Les points sont calculés et écrits UNIQUEMENT par l'admin (recalculateAllPoints),
+            // conformément aux règles Firebase sécurisées. Le joueur n'écrit jamais ses propres points.
+            // L'affichage des points du joueur lit directement la base (valeur maintenue par l'admin).
         }
 
         function recalculateAllPoints() {
@@ -1486,6 +1484,7 @@
             if (pageId === 'accueil') renderAccueil();
             if (pageId === 'minijeux') renderGameCards();
             if (pageId === 'classementFun') renderFunBoard();
+            if (pageId === 'admin') renderFunWatch();
             window.scrollTo(0, 0);
         }
         function renderAccueil() {
@@ -1613,6 +1612,7 @@
           var uref = db.ref('users/' + currentUser.id);
           uref.child('funPoints').once('value', function(snap){ var cur = parseInt(snap.val()) || 0; uref.child('funPoints').set(cur + pts); });
           uref.child('funGames/' + gameKey).set(todayNum());
+          uref.child('funPlays/' + todayNum() + '/' + gameKey).transaction(function(c){ return (c || 0) + 1; });
         }
 
         var fmodalBg = document.getElementById('funModalBg'), fmodal = document.getElementById('funModal');
@@ -1728,7 +1728,9 @@
             {k:'penalty',ic:'⚽',t:'Défi Pénalty',b:'gb-med',bl:'Adresse',d:'Vise la bonne zone, trompe le gardien. 5 tirs.',fn:'openPenalty'},
             {k:'quiz',ic:'🧠',t:'Quiz Coupe du Monde',b:'gb-hard',bl:'Difficile · ⏱️',d:'5 questions (simple → difficile), 8s chacune. Différentes chaque jour.',fn:'openQuiz'},
             {k:'flags',ic:'🚩',t:'Devine le drapeau',b:'gb-med',bl:'Moyen · ⏱️',d:'Reconnais le pays, 8s par manche. Change chaque jour.',fn:'openFlags'},
-            {k:'memory',ic:'🃏',t:'Memory drapeaux',b:'gb-easy',bl:'Mémoire',d:'Retrouve les paires de drapeaux.',fn:'openMemory'}
+            {k:'memory',ic:'🃏',t:'Memory drapeaux',b:'gb-easy',bl:'Mémoire',d:'Retrouve les paires de drapeaux.',fn:'openMemory'},
+            {k:'bombes',ic:'⭐',t:'Bombes & Ballons',b:'gb-med',bl:'Réflexe · Rapidité',d:'Clique les ballons ⚽, évite les bombes 💣 ! 20s, 2 vies.',fn:'openBB'},
+            {k:'vraifaux',ic:'🏆',t:'Vrai ou Faux',b:'gb-easy',bl:'Culture foot',d:'5 affirmations sur le foot. Vrai ou Faux ? Différentes chaque jour.',fn:'openVF'}
           ];
           c.innerHTML=defs.map(function(g){
             var locked=playedToday(g.k);
@@ -1743,6 +1745,130 @@
           arr.sort(function(a,b){ return b.fp-a.fp; });
           if(arr.length===0){ box.innerHTML='<div class="flocked">Personne n\'a encore de points fun — sois le premier, va jouer ! 🎮</div>'; return; }
           box.innerHTML=arr.map(function(r,i){ var me=currentUser&&r.id===currentUser.id; var md=i===0?'fb1':i===1?'fb2':i===2?'fb3':'fbx'; return '<div class="fbrow '+(me?'me':'')+'"><div class="fbmed '+md+'">'+(i+1)+'</div><div class="fbname">'+r.name+'</div><div class="fbpts">'+r.fp+' 🎮</div></div>'; }).join('');
+        }
+        function gameLabel(k){ return ({penalty:'⚽ Pénalty', quiz:'🧠 Quiz', flags:'🚩 Drapeaux', memory:'🃏 Memory', bombes:'⭐ Bombes & Ballons', vraifaux:'🏆 Vrai ou Faux'})[k] || k; }
+        function fmtDay(d){ d=String(d); return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4); }
+        function renderFunWatch(){
+          var box=document.getElementById('funWatch'); if(!box) return;
+          var rows=[];
+          Object.keys(allUsers||{}).forEach(function(id){
+            var u=allUsers[id]; if(!u||!u.funPlays) return;
+            Object.keys(u.funPlays).forEach(function(day){
+              var games=u.funPlays[day]||{};
+              Object.keys(games).forEach(function(g){ var n=parseInt(games[g])||0; if(n>1){ rows.push({name:u.name||id, g:g, day:day, n:n}); } });
+            });
+          });
+          if(rows.length===0){ box.innerHTML='<div style="color:var(--green);font-weight:600;padding:10px;">✅ Personne n\'a joué deux fois le même jour. Tout est clean !</div>'; return; }
+          rows.sort(function(a,b){ return b.n-a.n; });
+          box.innerHTML=rows.map(function(r){ return '<div class="fbrow"><span style="font-size:18px">⚠️</span><div class="fbname">'+r.name+'</div><div style="color:var(--muted);font-size:13px">'+gameLabel(r.g)+' · '+fmtDay(r.day)+'</div><div class="fbpts" style="color:var(--red)">'+r.n+'×</div></div>'; }).join('');
+        }
+
+
+        /* ===== BOMBES & BALLONS ===== */
+        var bbTimers=[];
+        function bbClear(){ bbTimers.forEach(function(t){ clearTimeout(t); clearInterval(t); }); bbTimers=[]; }
+        function openBB(){
+          fmodalBg.classList.add('open');
+          if(playedToday('bombes')){ bbClear(); fmodal.innerHTML='<span class="fmclose" onclick="fClose();bbClear()">&times;</span><h3>⭐ Bombes &amp; Ballons</h3><div class="flocked">✓ Déjà joué aujourd\'hui — reviens demain !</div>'; return; }
+          fmodal.innerHTML='<span class="fmclose" onclick="fClose();bbClear()">&times;</span><h3>⭐ Bombes &amp; Ballons</h3>'+
+            '<div class="bb-hud"><span class="lives" id="bbLives">❤️❤️</span><span class="sc">⚽ <b id="bbSc">0</b></span><span class="tm">⏱️ <b id="bbTm">20</b>s</span></div>'+
+            '<div class="bb-bar"><i id="bbBar"></i></div>'+
+            '<div class="bb-field" id="bbField"><div class="bb-flash" id="bbFlash"></div>'+
+              '<div class="bb-start" id="bbStart"><div class="big">⚽💣</div><div class="sm"><b>Clique les ballons ⚽</b><br>Évite les bombes 💣 (2 = perdu !)<br>20 secondes · clique pour commencer</div></div>'+
+            '</div>';
+          var field=document.getElementById('bbField');
+          document.getElementById('bbStart').onclick=start;
+          var running=false, score=0, lives=2, timeLeft=20000, spawnDelay=780;
+          function start(){
+            var s=document.getElementById('bbStart'); if(s)s.remove();
+            running=true;
+            var tick=setInterval(function(){
+              timeLeft-=100;
+              document.getElementById('bbBar').style.width=(timeLeft/20000*100)+'%';
+              document.getElementById('bbTm').textContent=Math.ceil(timeLeft/1000);
+              spawnDelay=780-((20000-timeLeft)/20000)*360;
+              if(timeLeft<=0){ endGame(true); }
+            },100);
+            bbTimers.push(tick);
+            spawnLoop();
+          }
+          function spawnLoop(){ if(!running) return; spawn(); var t=setTimeout(spawnLoop, spawnDelay); bbTimers.push(t); }
+          function spawn(){
+            if(!running) return;
+            var isBomb=Math.random()<0.32;
+            var el=document.createElement('div'); el.className='bb-item'; el.textContent=isBomb?'💣':'⚽';
+            var x=10+Math.random()*80, y=12+Math.random()*76;
+            el.style.left=x+'%'; el.style.top=y+'%'; el.style.fontSize=(34+Math.random()*14)+'px';
+            field.appendChild(el);
+            requestAnimationFrame(function(){ el.classList.add('in'); });
+            var life=820+Math.random()*380;
+            var rm=setTimeout(function(){ el.classList.remove('in'); el.classList.add('out'); setTimeout(function(){ el.remove(); },140); }, life);
+            bbTimers.push(rm);
+            el.onclick=function(ev){
+              ev.stopPropagation();
+              if(el.dataset.done||!running) return; el.dataset.done=1;
+              if(isBomb){ lives--; flash(); updateLives(); floater(x,y,'💥',' -1❤️','var(--red)'); el.classList.add('pop'); if(lives<=0){ endGame(false); } }
+              else { score++; document.getElementById('bbSc').textContent=score; floater(x,y,'','+1','var(--green)'); el.classList.add('pop'); }
+            };
+          }
+          function floater(x,y,emoji,txt,color){ var f=document.createElement('div'); f.className='bb-plus'; f.style.left=x+'%'; f.style.top=y+'%'; f.style.color=color; f.textContent=emoji+txt; field.appendChild(f); setTimeout(function(){ f.remove(); },700); }
+          function flash(){ var fl=document.getElementById('bbFlash'); fl.classList.remove('hit'); void fl.offsetWidth; fl.classList.add('hit'); }
+          function updateLives(){ document.getElementById('bbLives').textContent = lives===2?'❤️❤️':lives===1?'❤️🖤':'🖤🖤'; }
+          function endGame(finishedTime){
+            if(!running) return; running=false; bbClear();
+            var pts = score>=17?5: score>=12?4: score>=8?3: score>=4?2: 1;
+            var head = finishedTime
+              ? '<div style="font-size:34px">⏱️</div><div style="color:#8fc1ff;font-weight:700;margin-bottom:4px">Temps écoulé !</div>'
+              : '<div style="font-size:34px">💥</div><div style="color:var(--red);font-weight:700;margin-bottom:4px">Boom ! 2 bombes touchées</div>';
+            addFunPoints(pts, 'bombes');
+            if(pts>=3) confettiFx();
+            setTimeout(function(){
+              fmodal.innerHTML=fResultHTML('⭐ Bombes & Ballons — '+score+' ballons', pts, 5, '<button class="gbtn" style="margin-top:16px" onclick="fClose();showPage(\'classementFun\')">Voir le classement fun</button>').replace('<div class="fresult">','<div class="fresult">'+head);
+            }, 500);
+          }
+        }
+
+        /* ===== VRAI OU FAUX ===== */
+        var VF_POOL=[
+          {q:'Le Brésil a remporté 5 Coupes du Monde.', a:true},
+          {q:'Le Maroc a atteint la finale de la Coupe du Monde 2022.', a:false},
+          {q:'Un match de foot dure 90 minutes hors prolongation.', a:true},
+          {q:'Lionel Messi a gagné la Coupe du Monde 2022.', a:true},
+          {q:'La première Coupe du Monde a eu lieu en 1930.', a:true},
+          {q:'Cristiano Ronaldo est brésilien.', a:false},
+          {q:'La Coupe du Monde 2026 se joue à 48 équipes.', a:true},
+          {q:'Le gardien peut prendre le ballon à la main hors de sa surface.', a:false},
+          {q:'La France a gagné la Coupe du Monde 2018.', a:true},
+          {q:'Un carton rouge équivaut à trois cartons jaunes.', a:false},
+          {q:'Miroslav Klose est le meilleur buteur de l\'histoire des phases finales de CdM.', a:true},
+          {q:'Le penalty se tire à 9 mètres du but.', a:false},
+          {q:'L\'Italie a gagné 4 Coupes du Monde.', a:true},
+          {q:'En phase finale, un match nul se joue aux prolongations avant les tirs au but.', a:true},
+          {q:'La Coupe du Monde 2026 est organisée par 3 pays.', a:true}
+        ];
+        function openVF(){
+          fmodalBg.classList.add('open');
+          if(playedToday('vraifaux')){ fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>🏆 Vrai ou Faux</h3><div class="flocked">✓ Déjà joué aujourd\'hui — reviens demain !</div>'; return; }
+          var data=[]; for(var i=0;i<5;i++){ data.push(VF_POOL[(RD*5+i)%VF_POOL.length]); }
+          var idx=0, score=0, lock=false;
+          run();
+          function run(){
+            var Q=data[idx];
+            fmodal.innerHTML='<span class="fmclose" onclick="fClose()">&times;</span><h3>🏆 Vrai ou Faux</h3>'+
+              '<div class="qprog">Question '+(idx+1)+'/5 · Score '+score+'</div>'+
+              '<div class="vf-stmt">'+Q.q+'</div>'+
+              '<div class="vf-btns"><button class="gbtn vf-true" id="vfT">✅ VRAI</button><button class="gbtn vf-false" id="vfF">❌ FAUX</button></div>'+
+              '<div class="qprog" style="text-align:center;min-height:24px;margin-top:10px" id="vfFb"></div>';
+            document.getElementById('vfT').onclick=function(){ pick(true); };
+            document.getElementById('vfF').onclick=function(){ pick(false); };
+          }
+          function pick(ans){
+            if(lock) return; lock=true;
+            var Q=data[idx], fb=document.getElementById('vfFb');
+            if(ans===Q.a){ score++; fb.innerHTML='<span class="vf-win">✅ Correct !</span>'; }
+            else { fb.innerHTML='<span class="vf-lose">❌ Faux — réponse : '+(Q.a?'VRAI':'FAUX')+'</span>'; }
+            setTimeout(function(){ idx++; lock=false; if(idx<5) run(); else fShowResult('🏆 Vrai ou Faux', score, 5, 'vraifaux'); }, 1000);
+          }
         }
 
         // ===== Bulles décoratives =====
