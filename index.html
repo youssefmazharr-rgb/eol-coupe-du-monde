@@ -512,6 +512,12 @@
                 </div>
 
                 <div class="admin-section">
+                    <h3>🕵️ Surveillance des pronostics</h3>
+                    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">Vérifie qu'<b>aucun pronostic n'a été enregistré APRÈS le coup d'envoi</b> du match. Normalement c'est toujours vide (le verrou serveur bloque déjà). Si un nom apparaît en rouge, c'est un signal à vérifier. Mise à jour automatique.</p>
+                    <div id="pronoWatch"></div>
+                </div>
+
+                <div class="admin-section">
                     <h3>⚽ Ajouter Scoreur</h3>
                     <div class="form-grid">
                         <div class="form-group">
@@ -861,7 +867,7 @@
                 if (!isAdmin) calculatePointsForCurrentUser();
             });
 
-            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); renderFunWatch(); });
+            db.ref('users').on('value', function(){ renderGameCards(); renderFunBoard(); renderFunWatch(); renderPronoWatch(); });
 
             loadRanking();
         }
@@ -1191,6 +1197,8 @@
             }
 
             db.ref('pronostics/' + currentUser.id + '/' + id).set(s1 + '-' + s2).then(() => {
+                // Horodatage SERVEUR (infalsifiable) — pour la surveillance anti-triche
+                db.ref('users/' + currentUser.id + '/pronoTimes/' + id).set(firebase.database.ServerValue.TIMESTAMP);
                 alert('✓ Enregistré!');
             }).catch(() => {
                 alert('⛔ Enregistrement refusé : ce match est fermé (coup d\'envoi passé).');
@@ -1484,7 +1492,7 @@
             if (pageId === 'accueil') renderAccueil();
             if (pageId === 'minijeux') renderGameCards();
             if (pageId === 'classementFun') renderFunBoard();
-            if (pageId === 'admin') renderFunWatch();
+            if (pageId === 'admin') { renderFunWatch(); renderPronoWatch(); }
             window.scrollTo(0, 0);
         }
         function renderAccueil() {
@@ -1761,6 +1769,42 @@
           if(rows.length===0){ box.innerHTML='<div style="color:var(--green);font-weight:600;padding:10px;">✅ Personne n\'a joué deux fois le même jour. Tout est clean !</div>'; return; }
           rows.sort(function(a,b){ return b.n-a.n; });
           box.innerHTML=rows.map(function(r){ return '<div class="fbrow"><span style="font-size:18px">⚠️</span><div class="fbname">'+r.name+'</div><div style="color:var(--muted);font-size:13px">'+gameLabel(r.g)+' · '+fmtDay(r.day)+'</div><div class="fbpts" style="color:var(--red)">'+r.n+'×</div></div>'; }).join('');
+        }
+
+        // ===== Surveillance des pronostics (anti-triche horaire) =====
+        // Heure du coup d'envoi en ms UTC — MÊME calcul que initMatchTimes (Maroc UTC+1 => -1h)
+        function matchKickoffMs(matchId){
+          var m=(allMatches||[]).find(function(x){ return x.id==matchId; });
+          if(!m||!m.date||!m.time) return null;
+          var p=m.date.split('/').map(Number);
+          var t=m.time.split(':').map(Number);
+          return Date.UTC(p[2], p[1]-1, p[0], t[0]-1, t[1], 0);
+        }
+        function fmtDateTime(ms){
+          try{ return new Date(ms).toLocaleString('fr-FR',{timeZone:'Africa/Casablanca',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+          catch(e){ return new Date(ms+3600000).toLocaleString('fr-FR'); }
+        }
+        function renderPronoWatch(){
+          var box=document.getElementById('pronoWatch'); if(!box) return;
+          var rows=[];
+          Object.keys(allUsers||{}).forEach(function(id){
+            var u=allUsers[id]; if(!u||!u.pronoTimes) return;
+            Object.keys(u.pronoTimes).forEach(function(mid){
+              var pt=parseInt(u.pronoTimes[mid])||0;
+              var ko=matchKickoffMs(mid);
+              if(ko && pt>ko){
+                var m=(allMatches||[]).find(function(x){ return x.id==mid; });
+                rows.push({name:u.name||id, match:(m?(m.team1+' - '+m.team2):('Match '+mid)), ko:ko, pt:pt, late:Math.round((pt-ko)/60000)});
+              }
+            });
+          });
+          if(rows.length===0){ box.innerHTML='<div style="color:var(--green);font-weight:600;padding:10px;">✅ Aucun pronostic modifié après le coup d\'envoi. Tout est clean !</div>'; return; }
+          rows.sort(function(a,b){ return b.pt-a.pt; });
+          box.innerHTML=rows.map(function(r){
+            return '<div class="fbrow" style="border-color:rgba(239,68,68,.4)"><span style="font-size:18px">🚨</span><div class="fbname">'+r.name+'</div>'+
+              '<div style="color:var(--muted);font-size:12px">'+r.match+'<br>Prono à '+fmtDateTime(r.pt)+' · coup d\'envoi '+fmtDateTime(r.ko)+'</div>'+
+              '<div class="fbpts" style="color:var(--red)">+'+r.late+' min</div></div>';
+          }).join('');
         }
 
 
